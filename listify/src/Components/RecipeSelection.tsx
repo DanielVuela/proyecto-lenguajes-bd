@@ -19,9 +19,9 @@ const RecipeSelection: React.FC = () => {
       id: 1,
       name: 'Pancakes',
       ingredients: [
-        { id: "1", name: 'Harina', quantity: 200, unit: 'g', price: 0.5 },
-        { id: "2", name: 'Leche', quantity: 300, unit: 'ml', price: 0.3 },
-        { id: "3", name: 'Huevos', quantity: 2, unit: 'unidad', price: 0.4 },
+        { id: '1', name: 'Harina', quantity: 200, unit: 'g', price: 0.5 },
+        { id: '2', name: 'Leche', quantity: 300, unit: 'ml', price: 0.3 },
+        { id: '3', name: 'Huevos', quantity: 2, unit: 'unidad', price: 0.4 },
       ],
       instructions: 'Mezclar todos los ingredientes y cocinar en una sartén.',
     },
@@ -29,8 +29,8 @@ const RecipeSelection: React.FC = () => {
       id: 2,
       name: 'Tortilla',
       ingredients: [
-        { id: "4", name: 'Huevos', quantity: 3, unit: 'unidad', price: 0.6 },
-        { id: "5", name: 'Sal', quantity: 1, unit: 'cucharadita', price: 0.1 },
+        { id: '4', name: 'Huevos', quantity: 3, unit: 'unidad', price: 0.6 },
+        { id: '5', name: 'Sal', quantity: 1, unit: 'cucharadita', price: 0.1 },
       ],
       instructions: 'Batir los huevos y cocinarlos en una sartén.',
     },

@@ -77,7 +77,7 @@ const RecipeList: React.FC = () => {
     <div>
       <Typography variant="h6">Lista de Recetas</Typography>
       <Button variant="contained"
-        color="primary" onClick={() => navigate("/recipe-form")} >Receta Nueva</Button>
+        color="primary" onClick={() => navigate('/recipe-form')} >Receta Nueva</Button>
       <Grid container spacing={2}>
         {recipes.map((recipe) => (
           <Grid size={12} key={recipe.id}>

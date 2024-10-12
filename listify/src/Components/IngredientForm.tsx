@@ -1,5 +1,4 @@
 "use client";
-// components/IngredientForm.tsx
 
 import React, { useState } from 'react';
 import { Button, TextField, Grid2 as Grid, Typography, Snackbar, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
@@ -19,7 +18,7 @@ const IngredientForm: React.FC = () => {
   const [price, setPrice] = useState<number | ''>('');
   const [successMessage, setSuccessMessage] = useState(false);
 
-  const units = ['kg', 'g', 'L', 'mL', 'unidad', 'paquete', 'botella', 'lata']; // Unidades comunes
+  const units = ['kg', 'g', 'L', 'mL', 'unidad', 'paquete', 'botella', 'lata']; 
 
   const handleAddIngredient = () => {
     if (name && quantity && unit && price) {
@@ -31,10 +30,8 @@ const IngredientForm: React.FC = () => {
       };
       setIngredients([...ingredients, newIngredient]);
 
-      // Mostrar mensaje de éxito
       setSuccessMessage(true);
 
-      // Limpiar los campos
       setName('');
       setQuantity('');
       setUnit('');

@@ -18,6 +18,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
+import { navigate } from '../Actions/Navigate';
 
 interface Ingredient {
   id: number;
@@ -50,20 +51,7 @@ const IngredientCRUD: React.FC = () => {
   const units = ['kg', 'g', 'L', 'mL', 'unidad', 'paquete', 'botella', 'lata'];
 
   const handleAddIngredient = () => {
-    if (name && quantity && unit && price) {
-      const newIngredient: Ingredient = {
-        id: Date.now(), // Usamos un timestamp como ID
-        name,
-        quantity: Number(quantity),
-        unit,
-        price: Number(price),
-      };
-      setIngredients([...ingredients, newIngredient]);
-      setSuccessMessage(true);
-      resetForm();
-    } else {
-      alert('Por favor, completa todos los campos.');
-    }
+    navigate('/ingredient-form');
   };
 
   const handleEditIngredient = (index: number) => {

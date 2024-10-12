@@ -1,9 +1,9 @@
-import { ILoginRequest } from "../../../src/Models/Requests/ILoginRequest";
+import { ILoginRequest } from '../../../src/Models/Requests/ILoginRequest';
 
 
 export async function POST(request: Request) {
   const req = await request.json() as ILoginRequest;
-  return Response.json("ejemplo simple de post")
+  return Response.json('ejemplo simple de post')
 }
 
 

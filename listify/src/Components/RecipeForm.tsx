@@ -1,4 +1,4 @@
-"use client"
+'use client'
 import React, { useState } from 'react';
 import {
   Button,
@@ -10,7 +10,7 @@ import {
   FormControl,
   InputLabel,
 } from '@mui/material';
-import { Ingredient } from "@/src/Models/Ingredient";
+import { Ingredient } from '@/src/Models/Ingredient';
 import { navigate } from '@/src/Actions/Navigate';
 
 interface RecipeItem {
@@ -25,9 +25,9 @@ interface RecipeItem {
 const RecipeForm: React.FC = () => {
   //luego hay que recibir de la bd los ingredientes.
   const [ingredients, setIngredients] = useState<Ingredient[]>([
-    { id: "1", name: 'Harina', quantity: 1, unit: 'kg', price: 1.5 },
-    { id: "2", name: 'Huevos', quantity: 12, unit: 'unidad', price: 2.5 },
-    { id: "3", name: 'Leche', quantity: 1, unit: 'L', price: 1.0 },
+    { id: '1', name: 'Harina', quantity: 1, unit: 'kg', price: 1.5 },
+    { id: '2', name: 'Huevos', quantity: 12, unit: 'unidad', price: 2.5 },
+    { id: '3', name: 'Leche', quantity: 1, unit: 'L', price: 1.0 },
   ]);
 
   const [selectedIngredient, setSelectedIngredient] = useState<string | null>(null);
@@ -40,7 +40,7 @@ const RecipeForm: React.FC = () => {
       const ingredient = ingredients.find(ing => ing.id === selectedIngredient);
       if (ingredient) {
         const newRecipeItem: RecipeItem = {
-          ingredientId: ingredient.id ?? "",
+          ingredientId: ingredient.id ?? '',
           name: ingredient.name,
           quantity: Number(newQuantity),
           unit: ingredient.unit,
@@ -65,7 +65,7 @@ const RecipeForm: React.FC = () => {
       console.log('Receta Guardada:', { recipe, instructions });
       alert('Receta guardada con éxito');
       // aca luego enviamos a la base de datos.
-      navigate("/recipes");
+      navigate('/recipes');
     }
   };
 
