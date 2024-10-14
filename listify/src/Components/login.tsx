@@ -1,7 +1,7 @@
 'use client'; 
 
 import React, { useState } from 'react';
-import { Button, TextField, Container, Typography } from '@mui/material';
+import { Button, TextField, Container, Typography, Box } from '@mui/material';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -26,7 +26,8 @@ const Login: React.FC = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
+    <Box height="100vh" width={"100%"} justifyContent={"center"} marginTop={10} >
+    <Container component="main" maxWidth="xs" > 
       <Typography component="h1" variant="h5">
         Iniciar sesión
       </Typography>
@@ -54,6 +55,7 @@ const Login: React.FC = () => {
         </Button>
       </form>
     </Container>
+    </Box>
   );
 };
 

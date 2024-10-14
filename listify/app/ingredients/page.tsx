@@ -5,7 +5,6 @@ import IngredientsMaintenance from '@/src/Components/IngredientsList';
 const IngredientsPage: React.FC = () => {
   return (
     <Container>
-      <h1>Lista de Ingredientes</h1>
       <IngredientsMaintenance />
     </Container>
   );

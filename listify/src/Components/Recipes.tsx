@@ -75,7 +75,7 @@ const RecipeList: React.FC = () => {
 
   return (
     <div>
-      <Typography variant="h6">Lista de Recetas</Typography>
+      <Typography variant="h6">Recetario</Typography>
       <Button variant="contained"
         color="primary" onClick={() => navigate('/recipe-form')} >Receta Nueva</Button>
       <Grid container spacing={2}>
