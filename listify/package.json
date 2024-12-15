@@ -9,13 +9,21 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@azure/app-configuration": "^1.8.0",
+    "@azure/identity": "^4.5.0",
+    "@azure/keyvault-secrets": "^4.9.0",
     "@emotion/cache": "^11.13.1",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^6.1.3",
     "@mui/material": "^6.1.3",
     "@mui/material-nextjs": "^6.1.3",
+    "@types/oracledb": "^6.5.2",
     "next": "14.2.15",
+    "oci-common": "^2.100.0",
+    "oci-objectstorage": "^2.100.0",
+    "oci-secrets": "^2.100.0",
+    "oracledb": "^6.7.0",
     "react": "^18",
     "react-dom": "^18"
   },
