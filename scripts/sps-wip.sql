@@ -1,22 +1,3 @@
-Sádico Tímido
-sadicotimido
-En línea
-Yter, Chisco
-
-Sádico Tímido ha añadido a Yter al grupo. — hoy a las 14:50
-Sádico Tímido ha iniciado una llamada. — hoy a las 14:50
-[15:14]Chisco:
-
-
--------- 
--- Session
---------
-Expandir
-sps-wip1.sql
-7 KB
-﻿
-
-
 -------- 
 -- Session
 --------
@@ -44,7 +25,7 @@ BEGIN
         INSERT INTO Token (id_user, expires_at, token, scope)
         VALUES (v_user_id, v_expiry_date, v_token, 'session_scope')
         RETURNING id INTO v_token_id;
-
+        commit;
         RETURN v_token;
     ELSE
         RETURN NULL;
@@ -59,15 +40,15 @@ END create_session;
 
 -- delete
 
-CREATE OR REPLACE PROCEDURE END_SESSION(
+create or replace PROCEDURE END_SESSION(
     p_token IN VARCHAR2
 ) AS
     v_sql VARCHAR2(1000);
 BEGIN
-    v_sql := 'DELETE FROM TOKEN WHERE id_user = (SELECT id_user FROM TOKEN WHERE token = :p_user_id)';
-
+    v_sql := 'DELETE FROM TOKEN WHERE id_user = (SELECT Distinct(id_user) FROM TOKEN WHERE token = :p_user_id)';
     EXECUTE IMMEDIATE v_sql USING p_token;
-    
+    commit;
+
 END END_SESSION;
 
 
@@ -84,7 +65,7 @@ BEGIN
     INSERT INTO Ingredients(name,measurement_unit,price,client_id,last_update)
     VALUES (name,measurement_unit,price,client_id,sysdate);
     DBMS_OUTPUT.PUT_LINE('Ingrediente creado con Ã©xito: ' || name);
-
+    commit;
 EXCEPTION
 WHEN VALUE_ERROR THEN
         DBMS_OUTPUT.PUT_LINE('** ERROR: Hay un problema con el tipo de datos proporcionados.');

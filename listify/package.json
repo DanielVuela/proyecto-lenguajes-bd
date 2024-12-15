@@ -25,7 +25,8 @@
     "oci-secrets": "^2.100.0",
     "oracledb": "^6.7.0",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "zustand": "^5.0.2"
   },
   "devDependencies": {
     "@types/node": "^20",

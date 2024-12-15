@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Button, TextField, Grid2 as Grid, Typography, Snackbar, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
+import useUserStore from '@/context/userContext';
 
 interface Ingredient {
   name: string;
@@ -17,10 +18,11 @@ const IngredientForm: React.FC = () => {
   const [unit, setUnit] = useState('');
   const [price, setPrice] = useState<number | ''>('');
   const [successMessage, setSuccessMessage] = useState(false);
+  const {userId} = useUserStore();
 
-  const units = ['kg', 'g', 'L', 'mL', 'unidad', 'paquete', 'botella', 'lata']; 
+  const units = ['kg', 'g', 'L', 'mL', 'unidad', 'paquete', 'botella', 'lata'];
 
-  const handleAddIngredient = () => {
+  const handleAddIngredient = async () => {
     if (name && quantity && unit && price) {
       const newIngredient: Ingredient = {
         name,
@@ -28,14 +30,31 @@ const IngredientForm: React.FC = () => {
         unit,
         price: Number(price),
       };
-      setIngredients([...ingredients, newIngredient]);
 
-      setSuccessMessage(true);
+      const response = await fetch('/api/ingredient', {
+        method: 'POST',
+        cache: "reload",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId , ...newIngredient }),
+      });
 
-      setName('');
-      setQuantity('');
-      setUnit('');
-      setPrice('');
+      if (response.ok) {
+        setIngredients([...ingredients, newIngredient]);
+
+        setSuccessMessage(true);
+
+        setName('');
+        setQuantity('');
+        setUnit('');
+        setPrice('');
+      } else {
+        alert("El ingrediente no se pudo crear");
+      }
+
+
+
     } else {
       alert('Por favor, completa todos los campos.');
     }
@@ -103,7 +122,7 @@ const IngredientForm: React.FC = () => {
         autoHideDuration={3000}
         onClose={handleClose}
         message="Ingrediente añadido con éxito"
-      /> 
+      />
       {/* Esto seria la lista de agregados quizas podemos quitarlos luego*/}
       <Typography variant="h6" style={{ marginTop: '20px' }}>
         Ingredientes Añadidos:

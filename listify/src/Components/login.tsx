@@ -2,27 +2,35 @@
 
 import React, { useState } from 'react';
 import { Button, TextField, Container, Typography, Box } from '@mui/material';
+import useUserStore from '@/context/userContext';
+import { navigate } from '../Actions/Navigate';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const {setToken} = useUserStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    console.log('Email:', email);
-    console.log('Password:', password);
     
     const response = await fetch('/api/login', {
       method: 'POST',
+      cache: "reload",
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ email, password }),
     });
     
-    const data = await response.json();
-    console.log(data);
+    const token = await response.json();
+    if(token && token !== ""){
+      console.log("new token:", token);
+      setToken(token);
+      navigate("/");
+    }else{
+      alert("Credenciales incorrectas");
+    }
+    
   };
 
   return (

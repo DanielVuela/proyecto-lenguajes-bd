@@ -1,0 +1,3 @@
+interface IUserInfoRequest {
+  token: string;
+}

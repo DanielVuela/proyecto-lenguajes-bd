@@ -1,9 +1,39 @@
 'use client';
-import React from 'react';
-import { Box, Typography, Button, Grid2 as  Grid} from '@mui/material';
+import React, { useEffect } from 'react';
+import { Box, Typography, Button, Grid2 as Grid } from '@mui/material';
 import { navigate } from '../Actions/Navigate';
+import useUserStore from '@/context/userContext';
 
-const LandingPage = () => {
+const LandingPage =  () => {
+  const { token, setToken, setUserId } = useUserStore();
+
+  useEffect(() => {
+    const getUserId = async () => {
+    const response = await  fetch(`/api/login?token=${token}`);
+    const result = await response.json();
+    setUserId(result.id)
+    };
+    if(token && token !== ""){
+      getUserId();
+    }
+  }, [token])
+
+  const handleLogOut = async () => {
+    const response = await fetch('/api/login', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify( { token: token } ),
+    });
+
+    if (response.ok) {
+      setToken("");
+      navigate('/login');
+    } else {
+      alert("Error al cerrar la sesion");
+    }
+  }
 
   return (
     <Box
@@ -28,7 +58,7 @@ const LandingPage = () => {
           <Button
             variant="contained"
             color="primary"
-            onClick={() => navigate('/ingredientes')}
+            onClick={() => navigate('/ingredients')}
           >
             Ingredientes
           </Button>
@@ -55,7 +85,7 @@ const LandingPage = () => {
           <Button
             variant="contained"
             color="secondary"
-            onClick={() => navigate('/logout')}
+            onClick={handleLogOut}
           >
             Log out
           </Button>
