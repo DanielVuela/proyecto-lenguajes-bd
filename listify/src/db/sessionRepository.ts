@@ -5,15 +5,14 @@ const initiateSession = async (email: string, password: string) => {
   let connection;
   try {
     connection = await getDbConnection();
-    const result = await connection.execute<{ output: any }>(
+    const result = await connection.execute<{ output: string }>(
       `BEGIN :output := create_session(:p_email, :p_pass); END;`,
       {
         p_email: email,
         p_pass: password,
-        output: { dir: oracledb.BIND_OUT, type: oracledb.DB_TYPE_OBJECT }
+        output: { dir: oracledb.BIND_OUT, type: oracledb.DB_TYPE_VARCHAR }
       }
     );
-    console.log(result);  
     return result?.outBinds?.output;
 
   } catch (err) {

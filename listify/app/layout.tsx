@@ -39,6 +39,7 @@ export default function RootLayout({
             <div style={{ display: 'flex' }}>
 
               <Navbar />
+              
               {children}
             </div>
           </ThemeProvider>
