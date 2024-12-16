@@ -54,8 +54,22 @@ const RecipeList: React.FC = () => {
       fetchRecipes();
   }, [userId]);
 
-  const handleDeleteRecipe = (recipeId: number) => {
-    setRecipes(recipes.filter((recipe) => recipe.id !== recipeId));
+  const handleDeleteRecipe = async (recipeId: number) => {
+    // const updatedIngredients = ingredients.filter((ingredient) => ingredient.id !== id);
+        const response = await fetch('/api/recipe', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify( { id: recipeId } ),
+        });
+        console.log(response);
+        if (response.ok) {
+          alert("borrado con exito");
+        } else {
+          alert("Error al cerrar la sesion");
+        }
+    // setIngredients(updatedIngredients);
   };
 
   const handleEditRecipe = (recipe: Recipe) => {
