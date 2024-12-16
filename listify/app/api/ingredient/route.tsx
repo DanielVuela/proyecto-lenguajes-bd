@@ -19,6 +19,8 @@ export async function GET(request: Request) {
 
 export async function DELETE(request: Request) {
   const req = await request.json() as {id: number};
+  console.log(req.id);
   await deleteIngredient(req.id);
   return Response.json({});
 }
+

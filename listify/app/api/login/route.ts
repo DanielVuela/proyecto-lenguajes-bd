@@ -11,6 +11,7 @@ export async function POST(request: Request) {
 }
 
 
+
 export async function DELETE(request: Request) {
   const req = await request.json() as ILogoutRequest;
   const token = await logOut(req.token)
