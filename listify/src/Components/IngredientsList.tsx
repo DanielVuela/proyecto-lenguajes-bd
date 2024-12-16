@@ -68,23 +68,45 @@ const IngredientCRUD: React.FC = () => {
     setPrice(ingredients[index].price);
   };
 
-  const handleUpdateIngredient = (index: number) => {
+  const handleUpdateIngredient = async (index: number) => {
+    let updatedIngredient = {};
     if (name && quantity && unit && price) {
-      const updatedIngredients = ingredients.map((ingredient, idx) => {
+      ingredients.forEach((ingredient, idx) => {
         if (idx === index) {
-          return {
+          updatedIngredient =  {
             ...ingredient,
             name,
             quantity: Number(quantity),
             unit,
             price: Number(price),
           };
+          return;
         }
         return ingredient;
       });
-      setIngredients(updatedIngredients);
+      const response = await fetch('/api/ingredient', {
+        method: 'PUT',
+        cache: "reload",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId , ...updatedIngredient }),
+      });
+
+      if (response.ok) {
+        // refresh
+        setSuccessMessage(true);
+
+        setName('');
+        setQuantity('');
+        setUnit('');
+        setPrice('');
+      } else {
+        alert("El ingrediente no se pudo crear");
+      }
       setSuccessMessage(true);
       resetForm();
+      
     } else {
       alert('Por favor, completa todos los campos.');
     }

@@ -145,4 +145,8 @@ const deleteIngredient = async (id: number) => {
   }
 }
 
-export { fetchIngredientes, createIngredient, deleteIngredient }
+const updateIngredient = async () => {
+  // dele aca.
+}
+
+export { fetchIngredientes, createIngredient, deleteIngredient, updateIngredient }

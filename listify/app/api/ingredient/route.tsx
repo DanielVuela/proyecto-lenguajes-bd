@@ -1,8 +1,15 @@
-import { createIngredient, deleteIngredient, fetchIngredientes } from "@/src/db/ingredientRepository";
+import { createIngredient, deleteIngredient, fetchIngredientes, updateIngredient } from "@/src/db/ingredientRepository";
 
 export async function POST(request: Request) {
   const req = await request.json() as ICreateIngredientRequest;
   createIngredient(req.name, req.unit, req.price, req.userId,req.quantity);
+  return Response.json({});
+}
+
+export async function PUT(request: Request) {
+  const req = await request.json() as IUpdateIngredienteRequest;
+  console.log("esto lleva el request", req);
+  // updateIngredient(req.name, req.unit, req.price, req.userId,req.quantity);
   return Response.json({});
 }
 
