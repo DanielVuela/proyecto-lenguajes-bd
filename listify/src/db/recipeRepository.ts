@@ -119,6 +119,31 @@ const fetchRecipes = async (userId: number): Promise<any[]> => {
   }
 };
 
+const deleteRecipe = async (p_recipe_id: number) => {
+  let connection;
+  try{
+      connection = await getDbConnection();
+      await connection.execute(
+      `BEGIN
+        delete_recipe_with_ingredients(:p_recipe_id);
+      END;`,
+      {
+        p_recipe_id: p_recipe_id,
+      }
+    );
+  }catch (err) {
+    console.error('Error al conectar:', err);
+    throw err;
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error('Error al cerrar conexión:', err);
+        throw err;
+      }
+    }
+  }
+}
 
-
-export {createRecipeWithIngredients, fetchRecipes}
+export {createRecipeWithIngredients, fetchRecipes,deleteRecipe}

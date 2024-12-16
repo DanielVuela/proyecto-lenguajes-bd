@@ -1,4 +1,4 @@
-import { createRecipeWithIngredients, fetchRecipes } from "@/src/db/recipeRepository";
+import { createRecipeWithIngredients, deleteRecipe, fetchRecipes } from "@/src/db/recipeRepository";
 import { ICreateRecipeRequest } from "@/src/Models/Requests/ICreateRecipeRequest";
 
 export async function POST(request: Request) {
@@ -16,4 +16,11 @@ export async function GET(request: Request) {
     return Response.json(ingredientes);
   }
   return new Response(null, { status: 400 });
+}
+
+export async function DELETE(request: Request) {
+  const req = await request.json() as {id: number};
+  console.log(req.id);
+  await deleteRecipe(req.id);
+  return Response.json({});
 }
