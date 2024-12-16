@@ -25,9 +25,9 @@ interface RecipeItem {
 const RecipeForm: React.FC = () => {
   //luego hay que recibir de la bd los ingredientes.
   const [ingredients, setIngredients] = useState<Ingredient[]>([
-    { id: '1', name: 'Harina', quantity: 1, unit: 'kg', price: 1.5 },
-    { id: '2', name: 'Huevos', quantity: 12, unit: 'unidad', price: 2.5 },
-    { id: '3', name: 'Leche', quantity: 1, unit: 'L', price: 1.0 },
+    { id: '1', name: 'Harina', quantity: 1, measurementUnit: 'kg', price: 1.5 },
+    { id: '2', name: 'Huevos', quantity: 12, measurementUnit: 'unidad', price: 2.5 },
+    { id: '3', name: 'Leche', quantity: 1, measurementUnit: 'L', price: 1.0 },
   ]);
 
   const [selectedIngredient, setSelectedIngredient] = useState<string | null>(null);
@@ -43,7 +43,7 @@ const RecipeForm: React.FC = () => {
           ingredientId: ingredient.id ?? '',
           name: ingredient.name,
           quantity: Number(newQuantity),
-          unit: ingredient.unit,
+          unit: ingredient.measurementUnit,
         };
         setRecipe([...recipe, newRecipeItem]);
         resetForm();
@@ -83,7 +83,7 @@ const RecipeForm: React.FC = () => {
             >
               {ingredients.map((ingredient) => (
                 <MenuItem key={ingredient.id} value={ingredient.id}>
-                  {ingredient.name} ({ingredient.unit})
+                  {ingredient.name} ({ingredient.measurementUnit})
                 </MenuItem>
               ))}
             </Select>

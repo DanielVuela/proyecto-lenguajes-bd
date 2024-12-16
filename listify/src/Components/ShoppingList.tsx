@@ -52,7 +52,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ selectedRecipes }) => {
                   />
                   <Typography variant="h6" component="span">{ingredient.name}</Typography>
                   <Typography variant="body2" component="span" style={{ marginLeft: 10 }}>
-                    {`Cantidad: ${ingredient.quantity} ${ingredient.unit}`}
+                    {`Cantidad: ${ingredient.quantity} ${ingredient.measurementUnit}`}
                   </Typography>
                   <Typography variant="body2" style={{ marginTop: 5 }}>
                     Precio Unitario: ${ingredient.price.toFixed(2)}

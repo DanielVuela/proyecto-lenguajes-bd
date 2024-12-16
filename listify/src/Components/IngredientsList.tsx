@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   TextField,
@@ -19,6 +19,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import { navigate } from '../Actions/Navigate';
+import useUserStore from '@/context/userContext';
 
 interface Ingredient {
   id: number;
@@ -28,18 +29,8 @@ interface Ingredient {
   price: number;
 }
 
-const pancakeIngredients: Ingredient[] = [
-  { id: 1, name: 'Harina de trigo', quantity: 1, unit: 'taza', price: 1.00 },
-  { id: 2, name: 'Leche', quantity: 1, unit: 'taza', price: 0.50 },
-  { id: 3, name: 'Huevo', quantity: 1, unit: 'unidad', price: 0.20 },
-  { id: 4, name: 'Azúcar', quantity: 2, unit: 'cucharadas', price: 0.10 },
-  { id: 5, name: 'Polvo de hornear', quantity: 2, unit: 'cucharaditas', price: 0.05 },
-  { id: 6, name: 'Sal', quantity: 1, unit: 'pizca', price: 0.01 },
-  { id: 7, name: 'Mantequilla derretida', quantity: 2, unit: 'cucharadas', price: 0.15 },
-];
-
 const IngredientCRUD: React.FC = () => {
-  const [ingredients, setIngredients] = useState<Ingredient[]>(pancakeIngredients);
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [name, setName] = useState('');
   const [quantity, setQuantity] = useState<number | ''>('');
   const [unit, setUnit] = useState('');
@@ -47,8 +38,21 @@ const IngredientCRUD: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState(false);
   const [editMode, setEditMode] = useState<boolean[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number | null>(null); // Para manejar la edición
+  const {userId} = useUserStore();
 
   const units = ['kg', 'g', 'L', 'mL', 'unidad', 'paquete', 'botella', 'lata'];
+
+  useEffect(() => {
+    async function fetchIngredientes(){
+      const response = await  fetch(`/api/ingredient?userId=${userId}`);
+      const result = await response.json() as Ingredient[];
+      
+      console.log(result);
+      setIngredients(result);
+      };
+      if(userId)
+    fetchIngredientes();
+  }, [userId]);
 
   const handleAddIngredient = () => {
     navigate('/ingredient-form');
@@ -89,9 +93,22 @@ const IngredientCRUD: React.FC = () => {
     setEditMode(prev => prev.map((_, idx) => idx === index ? false : _)); // Desactivar modo edición
   };
 
-  const handleDeleteIngredient = (id: number) => {
-    const updatedIngredients = ingredients.filter((ingredient) => ingredient.id !== id);
-    setIngredients(updatedIngredients);
+  const handleDeleteIngredient = async (id: number) => {
+    // const updatedIngredients = ingredients.filter((ingredient) => ingredient.id !== id);
+        const response = await fetch('/api/ingredient', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify( { id: id } ),
+        });
+        console.log(response);
+        if (response.ok) {
+          alert("borrado con exito");
+        } else {
+          alert("Error al cerrar la sesion");
+        }
+    // setIngredients(updatedIngredients);
     setSuccessMessage(true);
   };
 
