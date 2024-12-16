@@ -2,7 +2,7 @@ import { createIngredient, deleteIngredient, fetchIngredientes } from "@/src/db/
 
 export async function POST(request: Request) {
   const req = await request.json() as ICreateIngredientRequest;
-  createIngredient(req.name, req.unit, req.price, req.userId);
+  createIngredient(req.name, req.unit, req.price, req.userId,req.quantity);
   return Response.json({});
 }
 

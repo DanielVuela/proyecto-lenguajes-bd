@@ -7,6 +7,7 @@ interface IngredientDTO {
   name: string;
   measurementUnit: string;
   price: number;
+  quantity: number;
   client_id: number;
   last_update: Date;
 }
@@ -46,7 +47,7 @@ const fetchIngredientes = async (userId: number): Promise<Ingredient[]> => {
         name: row[1] as string,
         measurementUnit: row[2] as string,
         price: row[3],
-        quantity: 1
+        quantity: row[4]
         // client_id: row[4],
         // last_update: row[5],
       });
@@ -79,7 +80,8 @@ const createIngredient = async (
   name: string,
   measurementUnit: string,
   price: number,
-  clientId: number
+  clientId: number, 
+  quantity: number
 ): Promise<void> => {
   let connection;
 
@@ -89,13 +91,14 @@ const createIngredient = async (
     await connection.execute(
       `
       BEGIN
-        SP_creacion_ingredientes(:name, :measurement_unit, :price, :client_id);
+        SP_creacion_ingredientes(:name, :measurement_unit, :price, :quantity, :client_id);
       END;
       `,
       {
         name,
         measurement_unit: measurementUnit,
         price,
+        quantity,
         client_id: clientId,
       }
     );

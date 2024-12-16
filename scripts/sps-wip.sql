@@ -53,18 +53,17 @@ END END_SESSION;
 
 
 
--------- 
 -- ingredientes
 --------
 ----------------------------------------------------------------------
 
 --------------------CREATE -----------------------------------
  
-CREATE OR REPLACE PROCEDURE SP_creacion_ingredientes (name IN VARCHAR2, measurement_unit IN VARCHAR2,price NUMBER,client_id IN NUMBER) AS 
+CREATE OR REPLACE PROCEDURE SP_creacion_ingredientes (name IN VARCHAR2, measurement_unit IN VARCHAR2, price NUMBER, quantity NUMBER, client_id IN NUMBER) AS 
 BEGIN
-    INSERT INTO Ingredients(name,measurement_unit,price,client_id,last_update)
-    VALUES (name,measurement_unit,price,client_id,sysdate);
-    DBMS_OUTPUT.PUT_LINE('Ingrediente creado con Ã©xito: ' || name);
+    INSERT INTO Ingredients(name, measurement_unit, price, quantity, client_id, last_update)
+    VALUES (name, measurement_unit, price, quantity, client_id, sysdate);
+    DBMS_OUTPUT.PUT_LINE('Ingrediente creado con éxito: ' || name);
     commit;
 EXCEPTION
 WHEN VALUE_ERROR THEN
@@ -75,21 +74,18 @@ END SP_creacion_ingredientes;
 
 
 --------------------------- READ ------------------------
-
 CREATE OR REPLACE FUNCTION get_ingredients_by_user_id(p_user_id NUMBER)
     RETURN SYS_REFCURSOR
 IS
     ingredients_cursor SYS_REFCURSOR;
 BEGIN
     OPEN ingredients_cursor FOR
-        SELECT id, name, measurement_unit, price, client_id, last_update
+        SELECT id, name, measurement_unit, price, quantity, client_id, last_update
         FROM Ingredients
         WHERE client_id = p_user_id;
 
     RETURN ingredients_cursor;
 END get_ingredients_by_user_id;
-
-
 -----------------UPDATE ----------------------
 
 CREATE OR REPLACE PROCEDURE SP_actualizar_ingredientes (id IN NUMBER,name IN VARCHAR2, measurement_unit IN VARCHAR2,price NUMBER) AS 
