@@ -88,13 +88,13 @@ BEGIN
 END get_ingredients_by_user_id;
 -----------------UPDATE ----------------------
 
-CREATE OR REPLACE PROCEDURE SP_actualizar_ingredientes (id IN NUMBER,name IN VARCHAR2, measurement_unit IN VARCHAR2,price NUMBER) AS 
+CREATE OR REPLACE PROCEDURE SP_actualizar_ingredientes (id IN NUMBER,name IN VARCHAR2, measurement_unit IN VARCHAR2,price NUMBER,quantity IN NUMBER) AS 
 BEGIN
      UPDATE Ingredients
-     SET name = SP_actualizar_ingredientes.name, measurement_unit = SP_actualizar_ingredientes.measurement_unit,price = SP_actualizar_ingredientes.price ,last_update = sysdate
-     WHERE id = id;
+     SET name = SP_actualizar_ingredientes.name, measurement_unit = SP_actualizar_ingredientes.measurement_unit,price = SP_actualizar_ingredientes.price ,last_update = sysdate,quantity = SP_actualizar_ingredientes.quantity 
+     WHERE id = SP_actualizar_ingredientes.id;
     DBMS_OUTPUT.PUT_LINE('Ingrediente se ha actualizado');
-
+    Commit;
 EXCEPTION
 WHEN NO_DATA_FOUND THEN
         DBMS_OUTPUT.PUT_LINE('Error: No se encontrÃ³ el ingrediente con ID ' || id || '.');

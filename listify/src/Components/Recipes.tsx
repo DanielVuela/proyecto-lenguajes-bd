@@ -34,17 +34,17 @@ const RecipeList: React.FC = () => {
       const result = await response.json();
       let recipesParsed: Recipe[] = [];
       console.log(result);
-      result.forEach((recipeEntry: { recipeId: number; ingredientName: any; measurementUnit: any; recipeName: any; recipeDescription: any; }) => {
+      result.forEach((recipeEntry: { ingredientid:number ;recipeId: number; ingredientName: any; measurementUnit: any; recipeName: any; recipeDescription: any; }) => {
         const finding = recipesParsed.find(r => recipeEntry.recipeId === r.id)
         if (finding) {
-          finding.ingredients.push({ name: recipeEntry.ingredientName, unit: recipeEntry.measurementUnit, quantity: 1 })
+          finding.ingredients.push({ name: recipeEntry.ingredientName, unit: recipeEntry.measurementUnit, quantity: 1, id: recipeEntry.ingredientid })
         }
         else {
           recipesParsed.push({
             id: recipeEntry.recipeId,
             name: recipeEntry.recipeName,
             instructions: recipeEntry.recipeDescription,
-            ingredients: [{ name: recipeEntry.ingredientName, unit: recipeEntry.measurementUnit, quantity: 1 }]
+            ingredients: [{ name: recipeEntry.ingredientName, unit: recipeEntry.measurementUnit, quantity: 1, id: recipeEntry.ingredientid }]
           })
         }
         setRecipes(recipesParsed);
@@ -78,13 +78,24 @@ const RecipeList: React.FC = () => {
     setModalOpen(true);
   };
 
-  const handleSaveRecipe = () => {
+  const handleSaveRecipe = async () => {
     if (editRecipe) {
-      setRecipes(
-        recipes.map((recipe) =>
-          recipe.id === editRecipe.id ? editRecipe : recipe
-        )
-      );
+      console.log(editRecipe);
+      const response = await fetch('/api/recipe', {
+        method: 'PUT',
+        cache: "reload",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id : editRecipe.id,userId , ingredientsIds: editRecipe.ingredients.map(i => i.id), name: editRecipe.name , instructions: editRecipe.instructions }),
+      });
+
+      if (response.ok) {
+        console.log('Receta Guardada:', { editRecipe});
+ 
+      } else {
+        alert("La receta no se pudo actulizar");
+      }
     }
     setModalOpen(false);
     setIsEditing(null);

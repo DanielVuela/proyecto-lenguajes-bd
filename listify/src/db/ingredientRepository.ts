@@ -145,8 +145,44 @@ const deleteIngredient = async (id: number) => {
   }
 }
 
-const updateIngredient = async () => {
-  // dele aca.
-}
+const updateIngredient = async (
+  id: number,
+  name: string,
+  measurementUnit: string,
+  price: number,
+  quantity: number
+) => {
+  let connection;
+  try{
+    connection = await getDbConnection();
+    await connection.execute(
+      `
+      BEGIN
+        SP_actualizar_ingredientes(:id, :name, :measurement_unit, :price, :quantity);
+      END;
+      `,
+      {
+        id,
+        name,
+        measurement_unit: measurementUnit,
+        price,
+        quantity,
+      }
+    );
+    console.log('Ingrediente actualizado.');
+
+  }catch (err) {
+    console.error('Error al crear el ingrediente:', err);
+    throw err;
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (closeErr) {
+        console.error('Error al cerrar conexión:', closeErr);
+      }
+    }
+  }
+};
 
 export { fetchIngredientes, createIngredient, deleteIngredient, updateIngredient }

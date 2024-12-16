@@ -100,6 +100,7 @@ const fetchRecipes = async (userId: number): Promise<any[]> => {
         recipeDescription: row[2],
         ingredientName: row[3],
         measurementUnit: row[4],
+        ingredientid: row[5],
       });
     }
 
@@ -147,4 +148,69 @@ const deleteRecipe = async (p_recipe_id: number) => {
   }
 }
 
-export { createRecipeWithIngredients, fetchRecipes, deleteRecipe }
+
+const updateRecipe = async (
+  recipeId: number,
+  recipeName: string,
+  description: string,
+  ingredientIds: number[]
+) => {
+  let connection;
+  try{
+    connection = await getDbConnection();
+    const dbObjectClass = await connection.getDbObjectClass('LISTIFY.NUMBERLIST');
+    const ingredientIdsObj = new dbObjectClass(ingredientIds);
+
+    console.log(ingredientIdsObj);
+
+
+    console.log({
+      recipeId: recipeId,
+      recipeName: recipeName,
+      description: description,
+      ingredientIds: {
+        type: oracledb.DB_TYPE_OBJECT,
+        dir: oracledb.BIND_IN,
+        val: ingredientIdsObj, // Ahora pasas el objeto
+      },
+    });
+    await connection.execute(
+      `
+      BEGIN
+        update_recipe_with_ingredients(
+          p_recipe_id => :recipeId,
+          p_recipe_name => :recipeName,
+          p_description => :description,
+          p_ingredient_ids => :ingredientIds
+        );
+      END;
+      `,
+      {
+      recipeId: recipeId,
+      recipeName: recipeName,
+      description: description,
+      ingredientIds: {
+        type: oracledb.DB_TYPE_OBJECT,
+        dir: oracledb.BIND_IN,
+        val: ingredientIdsObj, // Ahora pasas el objeto
+      },
+    },
+      { autoCommit: true }
+  );
+  console.log('Receta actulizada con éxito.');
+} catch (err) {
+  console.error('Error al crear la receta con ingredientes:', err);
+  throw err;
+} finally {
+  if (connection) {
+    try {
+      await connection.close();
+    } catch (err) {
+      console.error('Error al cerrar la conexión:', err);
+    }
+  }
+}
+};
+
+
+export { createRecipeWithIngredients, fetchRecipes, deleteRecipe, updateRecipe}

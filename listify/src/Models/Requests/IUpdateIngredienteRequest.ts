@@ -1,5 +1,5 @@
 interface IUpdateIngredienteRequest {
-  userId: number
+  id: number
   name: string
   quantity: number
   unit: string
