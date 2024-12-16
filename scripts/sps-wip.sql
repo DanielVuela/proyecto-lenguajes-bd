@@ -2,7 +2,7 @@
 -- Session
 --------
 
--- CReate
+-- Create
 
 create or replace FUNCTION create_session(
     p_email IN VARCHAR2,
@@ -104,22 +104,21 @@ END SP_actualizar_ingredientes;
 
 --------------- REMOVE ------------------
 
-CREATE OR REPLACE PROCEDURE SP_eliminar_ingredientes (id in number) AS 
+create or replace PROCEDURE SP_eliminar_ingredientes (ingredientId in number) AS 
 BEGIN
     delete Ingredients
-    where id = SP_eliminar_ingredientes.id;
+    where id = ingredientId;
+    commit;
     DBMS_OUTPUT.PUT_LINE('Ingrediente se ha eliminado');
 
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
-        DBMS_OUTPUT.PUT_LINE('Error: No se encontrÃ³ el ingrediente con ID ' || id || '.');
- 
+        DBMS_OUTPUT.PUT_LINE('Error: No se encontrÃ³ el ingrediente con ID ' || ingredientId || '.');
+
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error al intentar eliminar el ingrediente: ' || SQLERRM);
- 
+
 END SP_eliminar_ingredientes; 
-
-
 
 
 -------------
@@ -130,16 +129,15 @@ END SP_eliminar_ingredientes;
 
 --------------------CREATE -----------------------------------
 CREATE OR REPLACE PROCEDURE create_recipe_with_ingredients (
-  p_recipe_id IN NUMBER,
   p_recipe_name IN VARCHAR2,
   p_description IN VARCHAR2,
   p_client_id IN NUMBER,
-  p_ingredient_ids IN SYS.ODCINUMBERLIST -- tipo de tabla de Oracle para el arreglo de números
+  p_ingredient_ids IN SYS.ODCINUMBERLIST 
 ) IS
 BEGIN
  
-  INSERT INTO Recipe (id, name, description, client_id)
-  VALUES (p_recipe_id, p_recipe_name, p_description, p_client_id);
+  INSERT INTO Recipe (name, description, client_id)
+  VALUES (p_recipe_name, p_description, p_client_id);
  
  
   FOR i IN 1 .. p_ingredient_ids.COUNT LOOP

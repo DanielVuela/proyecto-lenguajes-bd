@@ -1,5 +1,5 @@
 import oracledb from 'oracledb';
-import { getDbConnection } from './DbConnection'; 
+import { getDbConnection } from './DbConnection';
 /**
  * Función para crear una receta con ingredientes.
  * @param recipeName Nombre de la receta.
@@ -30,7 +30,7 @@ const createRecipeWithIngredients = async (
     connection = await getDbConnection();
 
     const dbObjectClass = await connection.getDbObjectClass('LISTIFY.NUMBERLIST');
-  const ingredientIdsObj = new dbObjectClass(ingredientIds);
+    const ingredientIdsObj = new dbObjectClass(ingredientIds);
     await connection.execute(
       `
       BEGIN
@@ -73,7 +73,7 @@ const createRecipeWithIngredients = async (
 const fetchRecipes = async (userId: number): Promise<any[]> => {
   let connection;
   let resultSet: oracledb.ResultSet<any> | undefined;
-  
+
   try {
     connection = await getDbConnection();
 
@@ -121,17 +121,18 @@ const fetchRecipes = async (userId: number): Promise<any[]> => {
 
 const deleteRecipe = async (p_recipe_id: number) => {
   let connection;
-  try{
-      connection = await getDbConnection();
-      await connection.execute(
+  try {
+    connection = await getDbConnection();
+    await connection.execute(
       `BEGIN
         delete_recipe_with_ingredients(:p_recipe_id);
       END;`,
       {
         p_recipe_id: p_recipe_id,
-      }
+      },
+      { autoCommit: true },
     );
-  }catch (err) {
+  } catch (err) {
     console.error('Error al conectar:', err);
     throw err;
   } finally {
@@ -146,4 +147,4 @@ const deleteRecipe = async (p_recipe_id: number) => {
   }
 }
 
-export {createRecipeWithIngredients, fetchRecipes,deleteRecipe}
+export { createRecipeWithIngredients, fetchRecipes, deleteRecipe }

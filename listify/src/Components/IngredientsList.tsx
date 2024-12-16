@@ -45,10 +45,8 @@ const IngredientCRUD: React.FC = () => {
   useEffect(() => {
     async function fetchIngredientes(){
       const response = await  fetch(`/api/ingredient?userId=${userId}`);
-      const result = await response.json() as Ingredient[];
-      
-      console.log(result);
-      setIngredients(result);
+      const result: any[] = await response.json();
+      setIngredients(result.map(i => ({...i, unit: i.measurementUnit})));
       };
       if(userId)
     fetchIngredientes();
