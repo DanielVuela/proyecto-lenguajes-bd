@@ -1,11 +1,12 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, TextField, Grid2 as Grid, Typography, Card, CardContent, IconButton, Modal, Box } from '@mui/material';
 import { Edit, Delete } from '@mui/icons-material';
 import { navigate } from '../Actions/Navigate';
+import useUserStore from '@/context/userContext';
 
 interface Ingredient {
-  id: number;
+  id?: number;
   name: string;
   quantity: number;
   unit: string;
@@ -19,22 +20,39 @@ interface Recipe {
 }
 
 const RecipeList: React.FC = () => {
-  const [recipes, setRecipes] = useState<Recipe[]>([
-    {
-      id: 1,
-      name: 'Pancakes',
-      ingredients: [
-        { id: 1, name: 'Harina', quantity: 200, unit: 'g' },
-        { id: 2, name: 'Leche', quantity: 300, unit: 'ml' },
-        { id: 3, name: 'Huevos', quantity: 2, unit: 'unidad' },
-      ],
-      instructions: 'Mezclar todos los ingredientes y cocinar en una sartén.',
-    },
-  ]);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
 
   const [isEditing, setIsEditing] = useState<number | null>(null);
   const [editRecipe, setEditRecipe] = useState<Recipe | null>(null);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const { userId } = useUserStore();
+
+  useEffect(() => {
+    async function fetchRecipes() {
+      console.log(userId);
+      const response = await fetch(`/api/recipe?userId=${userId}`);
+      const result = await response.json();
+      let recipesParsed: Recipe[] = [];
+      console.log(result);
+      result.forEach((recipeEntry: { recipeId: number; ingredientName: any; measurementUnit: any; recipeName: any; recipeDescription: any; }) => {
+        const finding = recipesParsed.find(r => recipeEntry.recipeId === r.id)
+        if (finding) {
+          finding.ingredients.push({ name: recipeEntry.ingredientName, unit: recipeEntry.measurementUnit, quantity: 1 })
+        }
+        else {
+          recipesParsed.push({
+            id: recipeEntry.recipeId,
+            name: recipeEntry.recipeName,
+            instructions: recipeEntry.recipeDescription,
+            ingredients: [{ name: recipeEntry.ingredientName, unit: recipeEntry.measurementUnit, quantity: 1 }]
+          })
+        }
+        setRecipes(recipesParsed);
+      });
+    };
+    if (userId)
+      fetchRecipes();
+  }, [userId]);
 
   const handleDeleteRecipe = (recipeId: number) => {
     setRecipes(recipes.filter((recipe) => recipe.id !== recipeId));
@@ -96,8 +114,8 @@ const RecipeList: React.FC = () => {
                     Ingredientes:
                   </Typography>
                   <ul>
-                    {recipe.ingredients.map((ingredient) => (
-                      <li key={ingredient.id}>
+                    {recipe.ingredients.map((ingredient, i) => (
+                      <li key={`${ingredient.name}-${i}`}>
                         {ingredient.quantity} {ingredient.unit} de {ingredient.name}
                       </li>
                     ))}

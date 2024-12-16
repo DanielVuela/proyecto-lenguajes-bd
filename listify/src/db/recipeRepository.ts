@@ -73,66 +73,52 @@ const createRecipeWithIngredients = async (
 const fetchRecipes = async (userId: number): Promise<any[]> => {
   let connection;
   let resultSet: oracledb.ResultSet<any> | undefined;
-  let recipes: any[] = [];
-
+  
   try {
-    // Obtener la conexión a la base de datos
     connection = await getDbConnection();
 
-    // Llamada al procedimiento almacenado
     const result = await connection.execute(
-      `
-      BEGIN
-        :cursor := get_ingredients_by_user_id(:p_user_id);
-      END;
-      `,
+      `BEGIN
+        :recipes_cursor := get_recipes_by_user_id(:user_id);
+      END;`,
       {
-        cursor: { dir: oracledb.BIND_OUT, type: oracledb.CURSOR }, // Parámetro de salida
-        p_user_id: userId, // Parámetro de entrada
+        user_id: userId, // Parámetro para la función
+        recipes_cursor: { type: oracledb.DB_TYPE_CURSOR, dir: oracledb.BIND_OUT },
       }
     );
 
-    // Aserción de tipo para result.outBinds
-    const outBinds = result.outBinds as { cursor: oracledb.ResultSet<any> };
-    resultSet = outBinds.cursor;
+    const recipes = [];
+    const cursor = result.outBinds as { recipes_cursor: oracledb.ResultSet<any> };
+    resultSet = cursor.recipes_cursor;
 
-    // Leer las filas del cursor
     let row;
     while ((row = await resultSet.getRow())) {
-      console.log(row) // [ 1, 'paprika', 'g', 10, 1, 2024-12-15T23:33:29.000Z ]
+      console.log(row);
       recipes.push({
-        id: row[0] ,
-        name: row[1] as string,
-        measurementUnit: row[2] as string,
-        price: row[3],
-        quantity: 1
-        // client_id: row[4],
-        // last_update: row[5],
+        recipeId: row[0],
+        recipeName: row[1],
+        recipeDescription: row[2],
+        ingredientName: row[3],
+        measurementUnit: row[4],
       });
     }
+
+    console.log("recetas:", recipes);
+    return recipes;
   } catch (err) {
-    console.error('Error al obtener ingredientes:', err);
+    console.error('Error al obtener recetas:', err);
     throw err;
   } finally {
-    if (resultSet) {
-      try {
-        await resultSet.close();
-      } catch (err) {
-        console.error('Error al cerrar el cursor:', err);
-      }
-    }
-
     if (connection) {
       try {
         await connection.close();
       } catch (err) {
-        console.error('Error al cerrar conexión:', err);
+        console.error('Error al cerrar la conexión:', err);
       }
     }
   }
-
-  return recipes;
 };
+
 
 
 export {createRecipeWithIngredients, fetchRecipes}
