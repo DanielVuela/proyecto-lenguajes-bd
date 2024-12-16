@@ -213,7 +213,7 @@ create or replace procedure update_recipe_with_ingredients (
    p_recipe_id      in number,
    p_recipe_name    in varchar2,
    p_description    in varchar2,
-   p_ingredient_ids in sys.odcinumberlist -- tipo de tabla de Oracle para el arreglo de números
+   p_ingredient_ids in NumberList
 ) is
 begin
    update recipe
@@ -238,7 +238,7 @@ exception
                            || ' ya existe.');
    when others then
       dbms_output.put_line('Error al insertar la receta: ' || sqlerrm);
-      commit; -- Confirmar los cambios
+      commit; 
 end update_recipe_with_ingredients;
 
 
