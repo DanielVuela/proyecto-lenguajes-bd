@@ -162,3 +162,18 @@ begin
 end;
 
 commit;
+
+ ----- ammendments
+ ALTER TABLE ingredients
+ADD quantity NUMBER(10);
+
+UPDATE ingredients
+SET quantity = 3;
+
+ALTER TABLE shopping_list_recipe
+ADD quantity NUMBER(10);
+
+UPDATE ingredients
+SET quantity = 1;
+
+commit;
