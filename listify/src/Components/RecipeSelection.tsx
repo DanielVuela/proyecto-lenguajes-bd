@@ -1,10 +1,11 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Typography, Card, CardContent, Grid2 as Grid, IconButton } from '@mui/material';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 import { navigate } from '../Actions/Navigate';
 import { Ingredient } from '../Models/Ingredient';
+import useUserStore from '@/context/userContext';
 
 interface Recipe {
   id: number;
@@ -14,29 +15,42 @@ interface Recipe {
 }
 
 const RecipeSelection: React.FC = () => {
-  const [recipes, setRecipes] = useState<Recipe[]>([
-    {
-      id: 1,
-      name: 'Pancakes',
-      ingredients: [
-        { id: '1', name: 'Harina', quantity: 200, measurementUnit: 'g', price: 0.5 },
-        { id: '2', name: 'Leche', quantity: 300, measurementUnit: 'ml', price: 0.3 },
-        { id: '3', name: 'Huevos', quantity: 2, measurementUnit: 'unidad', price: 0.4 },
-      ],
-      instructions: 'Mezclar todos los ingredientes y cocinar en una sartén.',
-    },
-    {
-      id: 2,
-      name: 'Tortilla',
-      ingredients: [
-        { id: '4', name: 'Huevos', quantity: 3, measurementUnit: 'unidad', price: 0.6 },
-        { id: '5', name: 'Sal', quantity: 1, measurementUnit: 'cucharadita', price: 0.1 },
-      ],
-      instructions: 'Batir los huevos y cocinarlos en una sartén.',
-    },
-  ]);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
 
   const [selectedRecipes, setSelectedRecipes] = useState<{ recipe: Recipe; count: number }[]>([]);
+  const {userId} = useUserStore();
+
+    useEffect(() => {
+      async function fetchRecipes() {
+        const response = await fetch(`/api/recipe?userId=${userId}`);
+        const result = await response.json();
+        let recipesParsed: Recipe[] = [];
+        console.log(result);
+        result.forEach((recipeEntry: { recipeId: number; ingredientName: any; measurementUnit: any; recipeName: any; recipeDescription: any; }) => {
+          const finding = recipesParsed.find(r => recipeEntry.recipeId === r.id)
+          if (finding) {
+            finding.ingredients.push({
+              name: recipeEntry.ingredientName, measurementUnit: recipeEntry.measurementUnit, quantity: 1,
+              price: 0
+            })
+          }
+          else {
+            recipesParsed.push({
+              id: recipeEntry.recipeId,
+              name: recipeEntry.recipeName,
+              instructions: recipeEntry.recipeDescription,
+              ingredients: [{
+                name: recipeEntry.ingredientName, measurementUnit: recipeEntry.measurementUnit, quantity: 1,
+                price: 0
+              }]
+            })
+          }
+          setRecipes(recipesParsed);
+        });
+      };
+      if (userId)
+        fetchRecipes();
+    }, [userId]);
 
   const handleAddRecipe = (recipe: Recipe) => {
     setSelectedRecipes((prev) => {
@@ -69,21 +83,27 @@ const RecipeSelection: React.FC = () => {
     });
   };
 
-  const calculateTotalPrice = () => {
-    return selectedRecipes.reduce((total, { recipe, count }) => {
-      return (
-        total +
-        recipe.ingredients.reduce(
-          (sum, ingredient) => sum + ingredient.price * ingredient.quantity * count,
-          0
-        )
-      );
-    }, 0);
-  };
 
-  const handleCheckout = () => {
-    alert('Lista de compras procesada.');
-    navigate('/shopping-list')
+  const handleCheckout = async  () => {
+    const response = await fetch('/api/shopping-list', {
+      method: 'POST',
+      cache: "reload",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId , recipes: selectedRecipes.map( r => ({
+        id: r.recipe.id,
+        quantity: r.count
+      })) }),
+    });
+
+    if (response.ok) {
+      navigate('/shopping-list')
+    } else {
+      alert("Revisar recetas, no pudo crearse lista de compras");
+    }
+
+
   };
 
   return (
@@ -129,7 +149,7 @@ const RecipeSelection: React.FC = () => {
                   <ul>
                     {recipe.ingredients.map((ingredient) => (
                       <li key={ingredient.id}>
-                        {ingredient.name} - {ingredient.quantity * count} {ingredient.measurementUnit} (${(ingredient.price * ingredient.quantity * count).toFixed(2)})
+                        {ingredient.name} - {ingredient.quantity * count} {ingredient.measurementUnit} 
                       </li>
                     ))}
                   </ul>
@@ -140,11 +160,8 @@ const RecipeSelection: React.FC = () => {
         ))}
       </Grid>
 
-      <Typography variant="h6" style={{ marginTop: 20 }}>
-        Precio Total: ${calculateTotalPrice().toFixed(2)}
-      </Typography>
       <Button variant="contained" color="primary" onClick={handleCheckout} style={{ marginTop: 10 }}>
-        Calcular Precio y Proceder
+        Proceder a la lista de compra
       </Button>
     </div>
   );

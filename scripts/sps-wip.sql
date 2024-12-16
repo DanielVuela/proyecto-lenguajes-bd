@@ -4,52 +4,63 @@
 
 -- Create
 
-create or replace FUNCTION create_session(
-    p_email IN VARCHAR2,
-    p_pass IN VARCHAR2
-) RETURN VARCHAR2 IS
-    v_user_id NUMBER(10);
-    v_token VARCHAR2(50);
-    v_token_id NUMBER(10);
-    v_expiry_date DATE;
-BEGIN
-    SELECT id
-    INTO v_user_id
-    FROM Users
-    WHERE email = p_email AND PASS = p_pass;
+create or replace function create_session (
+   p_email in varchar2,
+   p_pass  in varchar2
+) return varchar2 is
+   v_user_id     number(10);
+   v_token       varchar2(50);
+   v_token_id    number(10);
+   v_expiry_date date;
+begin
+   select id
+     into v_user_id
+     from users
+    where email = p_email
+      and pass = p_pass;
 
-    IF v_user_id IS NOT NULL THEN
-        SELECT ora_hash('TOKEN_' || p_email ||  p_pass) INTO v_token FROM DUAL;
-        v_expiry_date := SYSDATE + INTERVAL '1' HOUR; -- El token expira en 1 hora
+   if v_user_id is not null then
+      select ora_hash('TOKEN_'
+                      || p_email
+                      || p_pass)
+        into v_token
+        from dual;
+      v_expiry_date := sysdate + interval '1' hour; -- El token expira en 1 hora
 
-        INSERT INTO Token (id_user, expires_at, token, scope)
-        VALUES (v_user_id, v_expiry_date, v_token, 'session_scope')
-        RETURNING id INTO v_token_id;
-        commit;
-        RETURN v_token;
-    ELSE
-        RETURN NULL;
-    END IF;
-EXCEPTION
-    WHEN NO_DATA_FOUND THEN
-        RETURN NULL;
-    WHEN OTHERS THEN
-        RETURN NULL;
-END create_session;
+      insert into token (
+         id_user,
+         expires_at,
+         token,
+         scope
+      ) values ( v_user_id,
+                 v_expiry_date,
+                 v_token,
+                 'session_scope' ) returning id into v_token_id;
+      commit;
+      return v_token;
+   else
+      return null;
+   end if;
+exception
+   when no_data_found then
+      return null;
+   when others then
+      return null;
+end create_session;
 
 
 -- delete
 
-create or replace PROCEDURE END_SESSION(
-    p_token IN VARCHAR2
-) AS
-    v_sql VARCHAR2(1000);
-BEGIN
-    v_sql := 'DELETE FROM TOKEN WHERE id_user = (SELECT Distinct(id_user) FROM TOKEN WHERE token = :p_user_id)';
-    EXECUTE IMMEDIATE v_sql USING p_token;
-    commit;
-
-END END_SESSION;
+create or replace procedure end_session (
+   p_token in varchar2
+) as
+   v_sql varchar2(1000);
+begin
+   v_sql := 'DELETE FROM TOKEN WHERE id_user = (SELECT Distinct(id_user) FROM TOKEN WHERE token = :p_user_id)';
+   execute immediate v_sql
+      using p_token;
+   commit;
+end end_session;
 
 
 
@@ -58,34 +69,56 @@ END END_SESSION;
 ----------------------------------------------------------------------
 
 --------------------CREATE -----------------------------------
- 
-CREATE OR REPLACE PROCEDURE SP_creacion_ingredientes (name IN VARCHAR2, measurement_unit IN VARCHAR2, price NUMBER, quantity NUMBER, client_id IN NUMBER) AS 
-BEGIN
-    INSERT INTO Ingredients(name, measurement_unit, price, quantity, client_id, last_update)
-    VALUES (name, measurement_unit, price, quantity, client_id, sysdate);
-    DBMS_OUTPUT.PUT_LINE('Ingrediente creado con éxito: ' || name);
-    commit;
-EXCEPTION
-WHEN VALUE_ERROR THEN
-        DBMS_OUTPUT.PUT_LINE('** ERROR: Hay un problema con el tipo de datos proporcionados.');
-WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('** ERROR inesperado: ' || SQLERRM);       
-END SP_creacion_ingredientes;
+
+create or replace procedure sp_creacion_ingredientes (
+   name             in varchar2,
+   measurement_unit in varchar2,
+   price            number,
+   quantity         number,
+   client_id        in number
+) as
+begin
+   insert into ingredients (
+      name,
+      measurement_unit,
+      price,
+      quantity,
+      client_id,
+      last_update
+   ) values ( name,
+              measurement_unit,
+              price,
+              quantity,
+              client_id,
+              sysdate );
+   dbms_output.put_line('Ingrediente creado con éxito: ' || name);
+   commit;
+exception
+   when value_error then
+      dbms_output.put_line('** ERROR: Hay un problema con el tipo de datos proporcionados.');
+   when others then
+      dbms_output.put_line('** ERROR inesperado: ' || sqlerrm);
+end sp_creacion_ingredientes;
 
 
 --------------------------- READ ------------------------
-CREATE OR REPLACE FUNCTION get_ingredients_by_user_id(p_user_id NUMBER)
-    RETURN SYS_REFCURSOR
-IS
-    ingredients_cursor SYS_REFCURSOR;
-BEGIN
-    OPEN ingredients_cursor FOR
-        SELECT id, name, measurement_unit, price, quantity, client_id, last_update
-        FROM Ingredients
-        WHERE client_id = p_user_id;
+create or replace function get_ingredients_by_user_id (
+   p_user_id number
+) return sys_refcursor is
+   ingredients_cursor sys_refcursor;
+begin
+   open ingredients_cursor for select id,
+                                      name,
+                                      measurement_unit,
+                                      price,
+                                      quantity,
+                                      client_id,
+                                      last_update
+                                                             from ingredients
+                                where client_id = p_user_id;
 
-    RETURN ingredients_cursor;
-END get_ingredients_by_user_id;
+   return ingredients_cursor;
+end get_ingredients_by_user_id;
 -----------------UPDATE ----------------------
 
 CREATE OR REPLACE PROCEDURE SP_actualizar_ingredientes (id IN NUMBER,name IN VARCHAR2, measurement_unit IN VARCHAR2,price NUMBER,quantity IN NUMBER) AS 
@@ -104,21 +137,22 @@ END SP_actualizar_ingredientes;
 
 --------------- REMOVE ------------------
 
-create or replace PROCEDURE SP_eliminar_ingredientes (ingredientId in number) AS 
-BEGIN
-    delete Ingredients
-    where id = ingredientId;
-    commit;
-    DBMS_OUTPUT.PUT_LINE('Ingrediente se ha eliminado');
-
-EXCEPTION
-    WHEN NO_DATA_FOUND THEN
-        DBMS_OUTPUT.PUT_LINE('Error: No se encontrÃ³ el ingrediente con ID ' || ingredientId || '.');
-
-    WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('Error al intentar eliminar el ingrediente: ' || SQLERRM);
-
-END SP_eliminar_ingredientes; 
+create or replace procedure sp_eliminar_ingredientes (
+   ingredientid in number
+) as
+begin
+   delete ingredients
+    where id = ingredientid;
+   commit;
+   dbms_output.put_line('Ingrediente se ha eliminado');
+exception
+   when no_data_found then
+      dbms_output.put_line('Error: No se encontrÃ³ el ingrediente con ID '
+                           || ingredientid
+                           || '.');
+   when others then
+      dbms_output.put_line('Error al intentar eliminar el ingrediente: ' || sqlerrm);
+end sp_eliminar_ingredientes; 
 
 
 -------------
@@ -128,30 +162,28 @@ END SP_eliminar_ingredientes;
 
 
 --------------------CREATE -----------------------------------
-CREATE OR REPLACE PROCEDURE create_recipe_with_ingredients (
+create or replace TYPE NUMBERLIST AS TABLE OF NUMBER;
+
+create or replace PROCEDURE create_recipe_with_ingredients (
   p_recipe_name IN VARCHAR2,
   p_description IN VARCHAR2,
   p_client_id IN NUMBER,
-  p_ingredient_ids IN SYS.ODCINUMBERLIST 
+  p_ingredient_ids IN NumberList
 ) IS
+v_recipe_id Recipe.id%TYPE;
 BEGIN
- 
   INSERT INTO Recipe (name, description, client_id)
-  VALUES (p_recipe_name, p_description, p_client_id);
- 
- 
+  VALUES (p_recipe_name, p_description, p_client_id)
+  RETURNING id INTO v_recipe_id;
+
   FOR i IN 1 .. p_ingredient_ids.COUNT LOOP
     INSERT INTO Recipe_ingredient (recipe_id, ingredient_id)
-    VALUES (p_recipe_id, p_ingredient_ids(i));
+    VALUES (v_recipe_id, p_ingredient_ids(i));
   END LOOP;
-EXCEPTION 
- WHEN DUP_VAL_ON_INDEX THEN 
-      DBMS_OUTPUT.PUT_LINE('Error: La receta con ID ' || p_recipe_id || ' ya existe.');
-WHEN OTHERS THEN
-      DBMS_OUTPUT.PUT_LINE('Error al insertar la receta: ' || SQLERRM);
-  COMMIT; -- Confirmar los cambios
-END create_recipe_with_ingredients;
-
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Error al crear la receta: ' || SQLERRM);
+END;
 
 
 --------------------------- READ ------------------------
@@ -162,7 +194,7 @@ IS
     recipes_cursor SYS_REFCURSOR;
 BEGIN
     OPEN recipes_cursor FOR
-        SELECT r.id, r.name,r.description,i.name,i.measurement_unit
+        SELECT r.id, r.name,r.description,i.name,i.measurement_unit,i.id
         FROM Ingredients i
         JOIN Recipe_ingredient ri
           ON i.id = ri.ingredient_id
@@ -175,57 +207,89 @@ BEGIN
 END get_recipes_by_user_id;
 
 
+
 -------------------- update -----------------------------------
-CREATE OR REPLACE PROCEDURE update_recipe_with_ingredients (
-  p_recipe_id IN NUMBER,
-  p_recipe_name IN VARCHAR2,
-  p_description IN VARCHAR2,
-  p_ingredient_ids IN SYS.ODCINUMBERLIST -- tipo de tabla de Oracle para el arreglo de números
-) IS
-BEGIN
-    
-    
-  UPDATE RECIPE 
-  SET name = p_recipe_name, description = p_description
-  WHERE id = p_recipe_id;
-  
-   DELETE FROM Recipe_ingredient
-   WHERE recipe_id = p_recipe_id;
- 
-   FOR i IN 1 .. p_ingredient_ids.COUNT LOOP
-    INSERT INTO Recipe_ingredient (recipe_id, ingredient_id)
-    VALUES (p_recipe_id, p_ingredient_ids(i));
-  END LOOP;
-EXCEPTION 
- WHEN DUP_VAL_ON_INDEX THEN 
-      DBMS_OUTPUT.PUT_LINE('Error: La receta con ID ' || p_recipe_id || ' ya existe.');
-WHEN OTHERS THEN
-      DBMS_OUTPUT.PUT_LINE('Error al insertar la receta: ' || SQLERRM);
-  COMMIT; -- Confirmar los cambios
-END update_recipe_with_ingredients;
+create or replace procedure update_recipe_with_ingredients (
+   p_recipe_id      in number,
+   p_recipe_name    in varchar2,
+   p_description    in varchar2,
+   p_ingredient_ids in sys.odcinumberlist -- tipo de tabla de Oracle para el arreglo de números
+) is
+begin
+   update recipe
+      set name = p_recipe_name,
+          description = p_description
+    where id = p_recipe_id;
+
+   delete from recipe_ingredient
+    where recipe_id = p_recipe_id;
+
+   for i in 1..p_ingredient_ids.count loop
+      insert into recipe_ingredient (
+         recipe_id,
+         ingredient_id
+      ) values ( p_recipe_id,
+                 p_ingredient_ids(i) );
+   end loop;
+exception
+   when dup_val_on_index then
+      dbms_output.put_line('Error: La receta con ID '
+                           || p_recipe_id
+                           || ' ya existe.');
+   when others then
+      dbms_output.put_line('Error al insertar la receta: ' || sqlerrm);
+      commit; -- Confirmar los cambios
+end update_recipe_with_ingredients;
 
 
 -------------------- delete -----------------------------------
 
-CREATE OR REPLACE PROCEDURE delete_recipe_with_ingredients(
-   p_recipe_id IN NUMBER
-) AS
-    v_sql VARCHAR2(1000);
-BEGIN
-    v_sql := 'DELETE FROM Recipe_ingredient WHERE RECIPE_ID = :p_recipe_id';
-    EXECUTE IMMEDIATE v_sql USING p_recipe_id;
-    
-    v_sql := 'DELETE FROM RECIPE WHERE id = :p_recipe_id';
-    EXECUTE IMMEDIATE v_sql USING p_recipe_id;
-COMMIT;
-END delete_recipe_with_ingredients;
+create or replace procedure delete_recipe_with_ingredients (
+   p_recipe_id in number
+) as
+   v_sql varchar2(1000);
+begin
+   v_sql := 'DELETE FROM Recipe_ingredient WHERE RECIPE_ID = :p_recipe_id';
+   execute immediate v_sql
+      using p_recipe_id;
+   v_sql := 'DELETE FROM RECIPE WHERE id = :p_recipe_id';
+   execute immediate v_sql
+      using p_recipe_id;
+   commit;
+end delete_recipe_with_ingredients;
 
 -------------
  -- Shopping List 
  ----------
  -------------------------  
 
+ --- CREATE
+create or replace type RECIPEQUANTITY as object (
+      recipe_id number,
+      quantity  number
+);
 
+create or replace type RECIPEQUANTITYLIST as
+   table of RECIPEQUANTITY;
 
+CREATE OR REPLACE PROCEDURE create_shopping_list(
+    p_list_name IN VARCHAR2,
+    p_client_id IN NUMBER,
+    p_recipes IN RecipeQuantityList -- Lista de tuplas (id, quantity)
+) AS
+    v_shopping_list_id NUMBER;
+BEGIN
+    INSERT INTO Shopping_List (name, user_id, created)
+    VALUES (p_list_name, p_client_id, SYSDATE)
+    RETURNING id INTO v_shopping_list_id;
 
-
+    FOR i IN 1 .. p_recipes.COUNT LOOP
+        INSERT INTO Shopping_List_Recipe (shopping_list_id, recipe_id, quantity)
+        VALUES (v_shopping_list_id, p_recipes(i).recipe_id, p_recipes(i).quantity);
+    END LOOP;
+EXCEPTION
+    WHEN DUP_VAL_ON_INDEX THEN
+        DBMS_OUTPUT.PUT_LINE('Error: Ya existe una lista de compras con ese nombre.');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error al crear la lista de compras: ' || SQLERRM);
+END create_shopping_list;
