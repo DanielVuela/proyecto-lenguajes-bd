@@ -1,18 +1,19 @@
  create or replace PACKAGE pk1_proyecto AS
 
     --- TIPOS PERSONALIZADOS
-      create or replace type ingredient_cost as object (ingredient_id    number,ingredient_name  varchar2(255),total_quantity   number,measurement_unit varchar2(50),total_cost       number);/
-      create or replace type ingredient_cost_info as object (ingredient_id    number,ingredient_name  varchar2(50),total_quantity   number,measurement_unit varchar2(50),total_cost       number);/
-      create or replace type recipequantity as object (recipe_id number,quantity  number);/
-      create or replace type recipequantitylist as table of recipequantity;/
-      create or replace type ingredient_cost_table as table of ingredient_cost;/
-      create or replace type numberlist as table of number;/
+      type ingredient_cost is record (ingredient_id    number,ingredient_name  varchar2(255),total_quantity   number,measurement_unit varchar2(50),total_cost       number);
+      type ingredient_cost_info is record (ingredient_id    number,ingredient_name  varchar2(50),total_quantity   number,measurement_unit varchar2(50),total_cost       number);
+      type recipequantity is record (recipe_id number,quantity  number);
+      type recipequantitylist is table of recipequantity;
+      type ingredient_cost_table is table of ingredient_cost;
+      type numberlist is table of number;
     
       ---FUNCIONES
       function create_session (p_email in varchar2, p_pass  in varchar2) return varchar2;
-      function get_ingredients_by_user_id (p_user_id number) return sys_refcursor is ingredients_cursor sys_refcursor;
+      function get_ingredients_by_user_id (p_user_id number) return sys_refcursor;
       FUNCTION get_recipes_by_user_id(p_user_id NUMBER) RETURN SYS_REFCURSOR;
-      FUNCTION CALCULATE_INGREDIENT_COSTS(p_shopping_list_id NUMBER) RETURN INGREDIENT_COST_TABLE PIPELINED IS v_row INGREDIENT_COST;
+      FUNCTION CALCULATE_INGREDIENT_COSTS(p_shopping_list_id NUMBER) RETURN INGREDIENT_COST_TABLE PIPELINED;
+      
       -----PROCEDIMIENTOS
       procedure end_session (p_token in varchar2);
       procedure sp_creacion_ingredientes (name in varchar2,measurement_unit in varchar2,price number,quantity number,client_id in number);
@@ -24,6 +25,7 @@
       PROCEDURE create_shopping_list(p_list_name IN VARCHAR2,p_client_id IN NUMBER,p_recipes IN RecipeQuantityList,p_shopping_list_id OUT NUMBER);
 END;
 
+-----------------------
 
 
 create or replace PACKAGE BODY pk1_proyecto AS
@@ -165,37 +167,7 @@ EXCEPTION
 WHEN VALUE_ERROR THEN
         DBMS_OUTPUT.PUT_LINE('** ERROR: Hay un problema con el tipo de datos proporcionados.');
 WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('** ERROR inesperado: ' || SQLERRM);       create or replace FUNCTION create_session(
-    p_email IN VARCHAR2,
-    p_pass IN VARCHAR2
-) RETURN VARCHAR2 IS
-    v_user_id NUMBER(10);
-    v_token VARCHAR2(50);
-    v_token_id NUMBER(10);
-    v_expiry_date DATE;
-BEGIN
-    SELECT id
-    INTO v_user_id
-    FROM Users
-    WHERE email = p_email AND PASS = p_pass;
-
-    IF v_user_id IS NOT NULL THEN
-        SELECT ora_hash('TOKEN_' || p_email ||  p_pass) INTO v_token FROM DUAL;
-        v_expiry_date := SYSDATE + INTERVAL '1' HOUR; -- El token expira en 1 hora
-
-        INSERT INTO Token (id_user, expires_at, token, scope)
-        VALUES (v_user_id, v_expiry_date, v_token, 'session_scope')
-        RETURNING id INTO v_token_id;
-        commit;
-        RETURN v_token;
-    ELSE
-        RETURN NULL;
-    END IF;
-EXCEPTION
-    WHEN NO_DATA_FOUND THEN
-        RETURN NULL;
-    WHEN OTHERS THEN
-        RETURN NULL;
+        DBMS_OUTPUT.PUT_LINE('** ERROR inesperado: ' || SQLERRM);       
 END SP_creacion_ingredientes;
 --------------------------------------sp_creacion_ingredientes---------------------------------------------------
 

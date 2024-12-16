@@ -84,7 +84,7 @@ END END_SESSION;
 
 -----------
 --ingredients
----------
+-------------
 
 ----CREATE
 create or replace PROCEDURE SP_creacion_ingredientes (name IN VARCHAR2, measurement_unit IN VARCHAR2, price NUMBER, quantity NUMBER, client_id IN NUMBER) AS 
@@ -97,40 +97,9 @@ EXCEPTION
 WHEN VALUE_ERROR THEN
         DBMS_OUTPUT.PUT_LINE('** ERROR: Hay un problema con el tipo de datos proporcionados.');
 WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('** ERROR inesperado: ' || SQLERRM);       create or replace FUNCTION create_session(
-    p_email IN VARCHAR2,
-    p_pass IN VARCHAR2
-) RETURN VARCHAR2 IS
-    v_user_id NUMBER(10);
-    v_token VARCHAR2(50);
-    v_token_id NUMBER(10);
-    v_expiry_date DATE;
-BEGIN
-    SELECT id
-    INTO v_user_id
-    FROM Users
-    WHERE email = p_email AND PASS = p_pass;
-
-    IF v_user_id IS NOT NULL THEN
-        SELECT ora_hash('TOKEN_' || p_email ||  p_pass) INTO v_token FROM DUAL;
-        v_expiry_date := SYSDATE + INTERVAL '1' HOUR; -- El token expira en 1 hora
-
-        INSERT INTO Token (id_user, expires_at, token, scope)
-        VALUES (v_user_id, v_expiry_date, v_token, 'session_scope')
-        RETURNING id INTO v_token_id;
-        commit;
-        RETURN v_token;
-    ELSE
-        RETURN NULL;
-    END IF;
-EXCEPTION
-    WHEN NO_DATA_FOUND THEN
-        RETURN NULL;
-    WHEN OTHERS THEN
-        RETURN NULL;
-END create_session;
-END SP_creacion_ingredientes;
-/
+        DBMS_OUTPUT.PUT_LINE('** ERROR inesperado: ' || SQLERRM);       
+END SP_creacion_ingredientes;     
+        
 
 ----read
 create or replace FUNCTION get_ingredients_by_user_id(p_user_id NUMBER)
