@@ -6,7 +6,7 @@ const initiateSession = async (email: string, password: string) => {
   try {
     connection = await getDbConnection();
     const result = await connection.execute<{ output: string }>(
-      `BEGIN :output := create_session(:p_email, :p_pass); commit; END;`,
+      `BEGIN :output := pk1_proyecto.create_session(:p_email, :p_pass); commit; END;`,
       {
         p_email: email,
         p_pass: password,

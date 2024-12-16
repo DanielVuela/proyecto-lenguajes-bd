@@ -177,3 +177,29 @@ UPDATE ingredients
 SET quantity = 1;
 
 commit;
+
+
+CREATE OR REPLACE TRIGGER trg_audit_session
+AFTER INSERT OR DELETE ON token
+FOR EACH ROW
+BEGIN
+    IF INSERTING THEN
+        INSERT INTO session_audit ( DESCRIPCION, AUTHOR, CREATED_AT)
+        VALUES (
+            'usuario ' || :NEW.id_user || 'inicio sesion',
+            'system',
+            SYSDATE
+        );
+    END IF;
+    
+    IF DELETING THEN
+        INSERT INTO session_audit (DESCRIPCION, AUTHOR, CREATED_AT)
+        VALUES (
+            'usuario ' || :OLD.id_user || 'cerro sesion',
+            'system',
+            SYSDATE
+        );
+    END IF;
+END;
+
+commit;

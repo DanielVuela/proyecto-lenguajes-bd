@@ -25,7 +25,7 @@ const fetchIngredientes = async (userId: number): Promise<Ingredient[]> => {
     const result = await connection.execute(
       `
       BEGIN
-        :cursor := get_ingredients_by_user_id(:p_user_id);
+        :cursor := pk1_proyecto.get_ingredients_by_user_id(:p_user_id);
       END;
       `,
       {
@@ -91,7 +91,7 @@ const createIngredient = async (
     await connection.execute(
       `
       BEGIN
-        SP_creacion_ingredientes(:name, :measurement_unit, :price, :quantity, :client_id);
+        pk1_proyecto.SP_creacion_ingredientes(:name, :measurement_unit, :price, :quantity, :client_id);
       END;
       `,
       {
@@ -124,7 +124,7 @@ const deleteIngredient = async (id: number) => {
       connection = await getDbConnection();
       await connection.execute(
       `BEGIN
-        SP_eliminar_ingredientes(:id);
+        pk1_proyecto.SP_eliminar_ingredientes(:id);
       END;`,
       {
         id: id,
@@ -158,7 +158,7 @@ const updateIngredient = async (
     await connection.execute(
       `
       BEGIN
-        SP_actualizar_ingredientes(:id, :name, :measurement_unit, :price, :quantity);
+        pk1_proyecto.SP_actualizar_ingredientes(:id, :name, :measurement_unit, :price, :quantity);
       END;
       `,
       {

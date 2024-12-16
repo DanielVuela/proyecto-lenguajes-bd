@@ -79,7 +79,7 @@ const fetchRecipes = async (userId: number): Promise<any[]> => {
 
     const result = await connection.execute(
       `BEGIN
-        :recipes_cursor := get_recipes_by_user_id(:user_id);
+        :recipes_cursor := pk1_proyecto.get_recipes_by_user_id(:user_id);
       END;`,
       {
         user_id: userId, // Parámetro para la función
@@ -126,7 +126,7 @@ const deleteRecipe = async (p_recipe_id: number) => {
     connection = await getDbConnection();
     await connection.execute(
       `BEGIN
-        delete_recipe_with_ingredients(:p_recipe_id);
+        pk1_proyecto.delete_recipe_with_ingredients(:p_recipe_id);
       END;`,
       {
         p_recipe_id: p_recipe_id,
