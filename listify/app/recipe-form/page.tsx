@@ -6,7 +6,6 @@ const RecipeFormPage: React.FC = () => {
   // Fetch los ingredientes en SSR
   return (
     <Container>
-      <h1>Nueva Receta</h1>
       <RecipeForm />
     </Container>
   );
