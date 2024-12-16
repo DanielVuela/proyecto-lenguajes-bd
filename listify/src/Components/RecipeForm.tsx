@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   TextField,
@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import { Ingredient } from '@/src/Models/Ingredient';
 import { navigate } from '@/src/Actions/Navigate';
+import useUserStore from '@/context/userContext';
 
 interface RecipeItem {
   ingredientId: string;
@@ -20,20 +21,26 @@ interface RecipeItem {
   unit: string;
 }
 
-// TODO: cambiar el alert por un snackbar
-
 const RecipeForm: React.FC = () => {
-  //luego hay que recibir de la bd los ingredientes.
-  const [ingredients, setIngredients] = useState<Ingredient[]>([
-    { id: '1', name: 'Harina', quantity: 1, measurementUnit: 'kg', price: 1.5 },
-    { id: '2', name: 'Huevos', quantity: 12, measurementUnit: 'unidad', price: 2.5 },
-    { id: '3', name: 'Leche', quantity: 1, measurementUnit: 'L', price: 1.0 },
-  ]);
-
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [selectedIngredient, setSelectedIngredient] = useState<string | null>(null);
   const [newQuantity, setNewQuantity] = useState<number | ''>('');
   const [instructions, setInstructions] = useState<string>(''); // Campo de instrucciones
   const [recipe, setRecipe] = useState<RecipeItem[]>([]); // Almacenar la receta
+  const [name, setName] = useState<string>('');
+  const { userId } = useUserStore();
+
+  useEffect(() => {
+    async function fetchIngredientes() {
+      const response = await fetch(`/api/ingredient?userId=${userId}`);
+      const result = await response.json() as Ingredient[];
+
+      console.log(result);
+      setIngredients(result);
+    };
+    if (userId)
+      fetchIngredientes();
+  }, [userId]);
 
   const handleAddToRecipe = () => {
     if (selectedIngredient !== null && newQuantity !== '') {
@@ -58,11 +65,26 @@ const RecipeForm: React.FC = () => {
     setNewQuantity('');
   };
 
-  const handleSaveRecipe = () => {
+  const handleSaveRecipe = async () => {
     if (recipe.length === 0 || instructions.trim() === '') {
       alert('Por favor asegúrate de que la receta tiene ingredientes e instrucciones.');
     } else {
-      console.log('Receta Guardada:', { recipe, instructions });
+      
+      const response = await fetch('/api/recipe', {
+        method: 'POST',
+        cache: "reload",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId , ingredientsIds: recipe.map(i => i.ingredientId), name, instructions }),
+      });
+
+      if (response.ok) {
+        console.log('Receta Guardada:', { recipe, instructions });
+ 
+      } else {
+        alert("El ingrediente no se pudo crear");
+      }
       alert('Receta guardada con éxito');
       // aca luego enviamos a la base de datos.
       navigate('/recipes');
@@ -73,6 +95,14 @@ const RecipeForm: React.FC = () => {
     <div>
       <Typography variant="h6">Crear Receta</Typography>
       <Grid container spacing={2}>
+      <Grid size={12}>
+          <TextField
+            label="Nombre"
+            fullWidth
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </Grid>
         <Grid size={12}>
           <FormControl fullWidth>
             <InputLabel>Ingrediente</InputLabel>

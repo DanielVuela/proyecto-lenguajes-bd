@@ -1,8 +1,9 @@
-import { createIngredient, deleteIngredient, fetchIngredientes } from "@/src/db/ingredientRepository";
+import { createRecipeWithIngredients, deleteRecipe, fetchRecipes } from "@/src/db/recipeRepository";
+import { ICreateRecipeRequest } from "@/src/Models/Requests/ICreateRecipeRequest";
 
 export async function POST(request: Request) {
-  const req = await request.json() as ICreateIngredientRequest;
-  createIngredient(req.name, req.unit, req.price, req.userId,req.quantity);
+  const req = await request.json() as ICreateRecipeRequest;
+  createRecipeWithIngredients(req.name, req.instructions, req.userId, req.ingredientsIds);
   return Response.json({});
 }
 
@@ -11,7 +12,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(reqUrl)
   const userIdParam = searchParams.get("userId");
   if (userIdParam) {
-    const ingredientes = await fetchIngredientes(Number(userIdParam));
+    const ingredientes = await fetchRecipes(Number(userIdParam));
     return Response.json(ingredientes);
   }
   return new Response(null, { status: 400 });
@@ -20,7 +21,6 @@ export async function GET(request: Request) {
 export async function DELETE(request: Request) {
   const req = await request.json() as {id: number};
   console.log(req.id);
-  await deleteIngredient(req.id);
+  await deleteRecipe(req.id);
   return Response.json({});
 }
-

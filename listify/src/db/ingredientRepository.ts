@@ -119,7 +119,30 @@ const createIngredient = async (
 };
 
 const deleteIngredient = async (id: number) => {
-  // dele aca
+  let connection;
+  try{
+      connection = await getDbConnection();
+      await connection.execute(
+      `BEGIN
+        SP_eliminar_ingredientes(:id);
+      END;`,
+      {
+        id: id,
+      }
+    );
+  }catch (err) {
+    console.error('Error al conectar:', err);
+    throw err;
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error('Error al cerrar conexión:', err);
+        throw err;
+      }
+    }
+  }
 }
 
 export { fetchIngredientes, createIngredient, deleteIngredient }
