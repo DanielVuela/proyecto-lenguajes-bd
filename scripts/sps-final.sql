@@ -147,54 +147,41 @@ BEGIN
 END get_ingredients_by_user_id;
 /
 
-----update
+----delete
 
-create or replace procedure update_recipe_with_ingredients (
-   p_recipe_id      in number,
-   p_recipe_name    in varchar2,
-   p_description    in varchar2,
-   p_ingredient_ids in NumberList-- tipo arregle de number
-) is
-begin
-   update recipe
-      set name = p_recipe_name,
-          description = p_description
-    where id = p_recipe_id;
+create or replace PROCEDURE SP_eliminar_ingredientes (ingredientId in number) AS 
+BEGIN
+    delete Ingredients
+    where id = ingredientId;
+    commit;
+    DBMS_OUTPUT.PUT_LINE('Ingrediente se ha eliminado');
 
-   delete from recipe_ingredient
-    where recipe_id = p_recipe_id;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Error: No se encontrÃ³ el ingrediente con ID ' || ingredientId || '.');
 
-   for i in 1..p_ingredient_ids.count loop
-      insert into recipe_ingredient (
-         recipe_id,
-         ingredient_id
-      ) values ( p_recipe_id,
-                 p_ingredient_ids(i) );
-   end loop;
-exception
-   when dup_val_on_index then
-      dbms_output.put_line('Error: La receta con ID '
-                           || p_recipe_id
-                           || ' ya existe.');
-   when others then
-      dbms_output.put_line('Error al insertar la receta: ' || sqlerrm);
-      commit; 
-end update_recipe_with_ingredients;
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error al intentar eliminar el ingrediente: ' || SQLERRM);
+
+END SP_eliminar_ingredientes; 
 /
 
----- DELETE
-create or replace PROCEDURE delete_recipe_with_ingredients(
-   p_recipe_id IN NUMBER
-) AS
-    v_sql VARCHAR2(1000);
+---- update
+create or replace PROCEDURE SP_eliminar_ingredientes (ingredientId in number) AS 
 BEGIN
-    v_sql := 'DELETE FROM Recipe_ingredient WHERE RECIPE_ID = :p_recipe_id';
-    EXECUTE IMMEDIATE v_sql USING p_recipe_id;
+    delete Ingredients
+    where id = ingredientId;
+    commit;
+    DBMS_OUTPUT.PUT_LINE('Ingrediente se ha eliminado');
 
-    v_sql := 'DELETE FROM RECIPE WHERE id = :p_recipe_id';
-    EXECUTE IMMEDIATE v_sql USING p_recipe_id;
-COMMIT;
-END delete_recipe_with_ingredients;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Error: No se encontrÃ³ el ingrediente con ID ' || ingredientId || '.');
+
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error al intentar eliminar el ingrediente: ' || SQLERRM);
+
+END SP_eliminar_ingredientes; 
 /
 -------------
 -- recipes
@@ -361,4 +348,4 @@ BEGIN
     END LOOP;
 
     RETURN;
-END;
+END CALCULATE_INGREDIENT_COSTS;
