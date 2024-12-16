@@ -11,6 +11,7 @@ interface IngredientCost {
 
 const createShoppingList = async (userId: number, listName: string, recipes: { id: number, quantity: number }[]) => {
   let connection: Connection | undefined;
+  let shoppingListId: number = 0;
 
   try {
     connection = await getDbConnection();
@@ -30,7 +31,8 @@ const createShoppingList = async (userId: number, listName: string, recipes: { i
         create_shopping_list(
           p_list_name => :listName,
           p_client_id => :clientId,
-          p_recipes   => :recipes
+          p_recipes   => :recipes,
+          p_shopping_list_id => :shoppingListId
         );
       END;`,
       {
@@ -41,12 +43,18 @@ const createShoppingList = async (userId: number, listName: string, recipes: { i
           dir: oracledb.BIND_IN,
           val: recipeInstances,
         },
+        shoppingListId: {
+          dir: oracledb.BIND_OUT, 
+          type: oracledb.NUMBER,
+          val: shoppingListId
+        },
       }, {
       autoCommit: true,
     }
     );
-
-    console.log('Procedimiento ejecutado con éxito:', result);
+    const outbinds = result.outBinds as {shoppingListId: number};
+    shoppingListId = outbinds.shoppingListId;
+    return shoppingListId;
   } catch (err) {
     console.error('Error al ejecutar el procedimiento:', err);
   } finally {
@@ -55,8 +63,6 @@ const createShoppingList = async (userId: number, listName: string, recipes: { i
     }
   }
 }
-
-
 
 const fetchCalculateIngredientCostsById = async (shoppingListId: number) => {
   let connection: Connection | undefined;

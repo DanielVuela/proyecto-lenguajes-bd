@@ -3,8 +3,8 @@ import { createShoppingList, fetchCalculateIngredientCostsById } from "@/src/db/
 export async function POST(request: Request) {
   const req = await request.json() as ICreateShoppingListRequest;
   console.log(req);
-  createShoppingList(req.userId,req.name ?? "unnamed list", req.recipes);
-  return Response.json({});
+  const shoppingList = await createShoppingList(req.userId,req.name ?? "unnamed list", req.recipes);
+  return Response.json(shoppingList);
 }
 
 export async function GET(request: Request) {

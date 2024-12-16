@@ -8,7 +8,6 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   const req = await request.json() as IUpdateIngredienteRequest;
-  console.log("esto lleva el request", req);
   updateIngredient(req.id, req.name, req.unit, req.price,req.quantity);
   return Response.json({});
 }

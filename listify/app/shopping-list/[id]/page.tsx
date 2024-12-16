@@ -1,10 +1,8 @@
 import React from 'react';
 import { Container } from '@mui/material';
 import ShoppingList from '@/src/Components/ShoppingList';
-import { Recipe } from '@/src/Models/Recipe';
 import { fetchCalculateIngredientCostsById } from '@/src/db/shoppingListRepository';
 import { IIngredientCost } from '@/src/Models/IngredientCost';
-import { fetchRecipes } from '@/src/db/recipeRepository';
 
 
 const RecipesPage: React.FC<{ params: any }> = async ({ params }) => {

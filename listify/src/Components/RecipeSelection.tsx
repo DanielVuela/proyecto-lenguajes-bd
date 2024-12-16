@@ -98,7 +98,8 @@ const RecipeSelection: React.FC = () => {
     });
 
     if (response.ok) {
-      navigate('/shopping-list')
+      const ShoppingListId = await response.json();
+      navigate(`/shopping-list/${ShoppingListId}`)
     } else {
       alert("Revisar recetas, no pudo crearse lista de compras");
     }
