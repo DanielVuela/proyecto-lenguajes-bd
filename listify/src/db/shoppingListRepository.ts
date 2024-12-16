@@ -1,7 +1,15 @@
-import oracledb, { Connection, getConnection } from "oracledb";
+import oracledb, { Connection } from "oracledb";
 import { getDbConnection } from "./DbConnection";
 
-async function createShoppingList(userId: number, listName: string, recipes: { id: number, quantity: number }[]) {
+interface IngredientCost {
+  INGREDIENT_ID: number;
+  INGREDIENT_NAME: string;
+  TOTAL_QUANTITY: number;
+  MEASUREMENT_UNIT: string;
+  TOTAL_COST: number;
+}
+
+const createShoppingList = async (userId: number, listName: string, recipes: { id: number, quantity: number }[]) => {
   let connection: Connection | undefined;
 
   try {
@@ -12,7 +20,7 @@ async function createShoppingList(userId: number, listName: string, recipes: { i
 
     const recipeInstances = recipes.map((r) => {
       const recipeInstance = new RecipeQuantityType();
-      recipeInstance.RECIPE_ID = r.id; 
+      recipeInstance.RECIPE_ID = r.id;
       recipeInstance.QUANTITY = r.quantity;
       return recipeInstance;
     });
@@ -48,4 +56,33 @@ async function createShoppingList(userId: number, listName: string, recipes: { i
   }
 }
 
-export { createShoppingList };
+
+
+const fetchCalculateIngredientCostsById = async (shoppingListId: number) => {
+  let connection: Connection | undefined;
+
+  try {
+    connection = await getDbConnection();
+
+    const result = await connection.execute(
+      `SELECT * FROM TABLE(CALCULATE_INGREDIENT_COSTS(:id))`,
+      { id: shoppingListId },
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    const ingredients: IngredientCost[] = result.rows as IngredientCost[];
+    return ingredients;
+  } catch (err) {
+    console.error('Error al ejecutar la función:', err);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error('Error al cerrar la conexión:', err);
+      }
+    }
+  }
+}
+
+export { createShoppingList, fetchCalculateIngredientCostsById };

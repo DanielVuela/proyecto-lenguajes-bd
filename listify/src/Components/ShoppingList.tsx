@@ -13,6 +13,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Ingredient } from '../Models/Ingredient';
 import { Recipe } from '../Models/Recipe';
+import { IIngredientCost } from '../Models/IngredientCost';
 
 
 interface ShoppingListProps {
@@ -20,12 +21,13 @@ interface ShoppingListProps {
     recipe: Recipe;
     count: number; 
   }[];
+  ingredientsCosts: IIngredientCost[]
 }
 
-const ShoppingList: React.FC<ShoppingListProps> = ({ selectedRecipes }) => {
-  const [selectedIngredients, setSelectedIngredients] = useState<Ingredient[]>([]);
+const ShoppingList: React.FC<ShoppingListProps> = ({ selectedRecipes, ingredientsCosts }) => {
+  const [selectedIngredients, setSelectedIngredients] = useState<IIngredientCost[]>([]);
 
-  const toggleIngredientSelection = (ingredient: Ingredient) => {
+  const toggleIngredientSelection = (ingredient: IIngredientCost) => {
     if (selectedIngredients.some(item => item.id === ingredient.id)) {
       setSelectedIngredients(prev => prev.filter(item => item.id !== ingredient.id));
     } else {
@@ -34,20 +36,19 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ selectedRecipes }) => {
   };
 
   const calculateTotalPrice = () => {
-    return selectedIngredients.reduce((total, ingredient) => total + ingredient.price * ingredient.quantity, 0);
+    return selectedIngredients.reduce((total, ingredient) => total + ingredient.totalCost * ingredient.quantity, 0);
   };
 
   return (
     <div>
       <Typography variant="h5">Lista de Compras</Typography>
       <Grid container spacing={2}>
-        {selectedRecipes.flatMap(selectedRecipe =>
-          selectedRecipe.recipe.ingredients.map((ingredient) => (
+        {ingredientsCosts.map((ingredient) => (
             <Grid item xs={12} sm={6} md={4} key={ingredient.id}>
               <Card style={{ backgroundColor: selectedIngredients.some(item => item.id === ingredient.id) ? 'lightgreen' : 'white' }}>
                 <CardContent>
                   <Checkbox
-                    checked={selectedIngredients.some(item => item.id === ingredient.id)}
+                    checked={selectedIngredients.some(item => item.id ?? "" === ingredient.id.toString())}
                     onChange={() => toggleIngredientSelection(ingredient)}
                   />
                   <Typography variant="h6" component="span">{ingredient.name}</Typography>
@@ -55,13 +56,13 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ selectedRecipes }) => {
                     {`Cantidad: ${ingredient.quantity} ${ingredient.measurementUnit}`}
                   </Typography>
                   <Typography variant="body2" style={{ marginTop: 5 }}>
-                    Precio Unitario: ${ingredient.price.toFixed(2)}
+                    Precio total: ${ingredient.totalCost.toFixed(2)}
                   </Typography>
                 </CardContent>
               </Card>
             </Grid>
           ))
-        )}
+        }
       </Grid>
       <Typography variant="h6" style={{ marginTop: 20 }}>
         Precio Total: ${calculateTotalPrice().toFixed(2)}

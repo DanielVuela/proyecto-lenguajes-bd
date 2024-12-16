@@ -293,3 +293,56 @@ EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error al crear la lista de compras: ' || SQLERRM);
 END create_shopping_list;
+
+---- READ (CALCULATIONS of ingredient price)
+CREATE OR REPLACE TYPE INGREDIENT_COST AS OBJECT (
+    ingredient_id       NUMBER,
+    ingredient_name     VARCHAR2(255),
+    total_quantity      NUMBER,
+    measurement_unit    VARCHAR2(50),
+    total_cost          NUMBER
+);
+
+CREATE OR REPLACE TYPE INGREDIENT_COST_TABLE AS TABLE OF INGREDIENT_COST;
+
+CREATE OR REPLACE FUNCTION CALCULATE_INGREDIENT_COSTS(
+    p_shopping_list_id NUMBER
+) RETURN INGREDIENT_COST_TABLE PIPELINED IS
+    v_row INGREDIENT_COST; -- Variable para almacenar una fila del resultado
+BEGIN
+    -- Consulta que calcula los costos por ingrediente
+    FOR ingredient_info IN (
+        SELECT
+    i.id AS ingredient_id,
+    i.name AS ingredient_name,
+    SUM(slr.quantity * i.quantity) AS total_quantity, -- Cantidad total derivada de shopping_list_recipe
+    i.measurement_unit,
+    SUM(i.price * slr.quantity * i.quantity) AS total_cost -- Cálculo del costo total
+    FROM 
+        shopping_list_recipe slr
+    JOIN 
+    recipe r ON slr.recipe_id = r.id
+    JOIN 
+    recipe_ingredient ri ON r.id = ri.recipe_id
+    JOIN 
+        ingredients i ON ri.ingredient_id = i.id
+    WHERE 
+        slr.shopping_list_id = 11
+    GROUP BY 
+        i.id, i.name, i.measurement_unit
+    ) LOOP
+        -- Rellenar la variable v_row con los datos de la fila
+        v_row := INGREDIENT_COST(
+            ingredient_info.ingredient_id,
+            ingredient_info.ingredient_name,
+            ingredient_info.total_quantity,
+            ingredient_info.measurement_unit,
+            ingredient_info.total_cost
+        );
+        -- Emitir la fila al conjunto de resultados
+        PIPE ROW(v_row);
+    END LOOP;
+
+    RETURN;
+END;
+/
