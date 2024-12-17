@@ -20,9 +20,9 @@ const createRecipeWithIngredients = async (
     description: description,
     clientId: clientId,
     ingredientIds: {
-      type: "LISTIFY.NUMBERLIST", // Tipo de dato en Oracle
+      type: "LISTIFY.NUMBERLIST", // tipo de dato en Oracle
       dir: oracledb.BIND_IN,
-      val: ingredientIds, // El arreglo de IDs
+      val: ingredientIds, // arreglo de IDs
     },
   });
 
@@ -49,7 +49,7 @@ const createRecipeWithIngredients = async (
         ingredientIds: {
           type: oracledb.DB_TYPE_OBJECT,
           dir: oracledb.BIND_IN,
-          val: ingredientIdsObj, // Ahora pasas el objeto
+          val: ingredientIdsObj, 
         },
       },
       { autoCommit: true }
@@ -82,7 +82,7 @@ const fetchRecipes = async (userId: number): Promise<any[]> => {
         :recipes_cursor := pk1_proyecto.get_recipes_by_user_id(:user_id);
       END;`,
       {
-        user_id: userId, // Parámetro para la función
+        user_id: userId, 
         recipes_cursor: { type: oracledb.DB_TYPE_CURSOR, dir: oracledb.BIND_OUT },
       }
     );

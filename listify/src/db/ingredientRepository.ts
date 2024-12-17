@@ -18,10 +18,8 @@ const fetchIngredientes = async (userId: number): Promise<Ingredient[]> => {
   let ingredients: Ingredient[] = [];
 
   try {
-    // Obtener la conexión a la base de datos
     connection = await getDbConnection();
 
-    // Llamada al procedimiento almacenado
     const result = await connection.execute(
       `
       BEGIN
@@ -29,16 +27,14 @@ const fetchIngredientes = async (userId: number): Promise<Ingredient[]> => {
       END;
       `,
       {
-        cursor: { dir: oracledb.BIND_OUT, type: oracledb.CURSOR }, // Parámetro de salida
-        p_user_id: userId, // Parámetro de entrada
+        cursor: { dir: oracledb.BIND_OUT, type: oracledb.CURSOR }, 
+        p_user_id: userId, 
       }
     );
 
-    // Aserción de tipo para result.outBinds
     const outBinds = result.outBinds as { cursor: oracledb.ResultSet<IngredientDTO> };
     resultSet = outBinds.cursor;
 
-    // Leer las filas del cursor
     let row;
     while ((row = await resultSet.getRow())) {
       console.log(row) // [ 1, 'paprika', 'g', 10, 1, 2024-12-15T23:33:29.000Z ]
